@@ -1,6 +1,9 @@
 from point import Point
-from kline_sqlite import KLineSqlite
+from notify_tpl import NotifyTpl
+import notify
 import requests
+import time
+import asyncio
 
 '''
 监控一只股票
@@ -13,9 +16,9 @@ class Watcher:
     STATUS_RUN = 1
     STATUS_STOP = 2
 
-    def __init__(self, code, bugPriceList = [], salePriceList[], notifyUrl = ''):
+    def __init__(self, code, buyPriceList = [], salePriceList = [], notifyUrl = ''):
         self.code = code
-        self.bugPriceList = bugPriceList
+        self.buyPriceList = buyPriceList
         self.salePriceList = salePriceList
         self.notifyUrl = notifyUrl
         self.status = Watcher.STATUS_STOP 
@@ -23,6 +26,7 @@ class Watcher:
     def start(self):
         self.status = Watcher.STATUS_RUN
         while 1:
+            time.sleep(1)
             if self.status == Watcher.STATUS_STOP:
                 print('watcher stopped')
                 return
@@ -32,5 +36,26 @@ class Watcher:
         self.status = Watcher.STATUS_STOP
 
     def watchOnce(self):
-        if not Point.isStockTime(): return
+        if not Point.isStcokTime(): return
         point = Point.getNow(self.code)
+        self.onNewPoint(point)
+
+    def onBuyEvent(self, nowPrice, buyPrice, point):
+        print('on buy event', 'now:', nowPrice, 'buy:', buyPrice)
+        msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_BUY, '(<=%s)' % buyPrice)
+        notify.sendDDMsg(self.notifyUrl, msg)
+
+    def onSaleEvent(self, nowPrice, salePrice, point):
+        print('on sale event', 'now:', nowPrice, 'sale:', salePrice)
+        msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_SALE, '(>=%s)' % salePrice)
+        notify.sendDDMsg(self.notifyUrl, msg)
+
+    def onNewPoint(self, point):
+        now = point.now
+        print('now:', now)
+        for p in self.buyPriceList:
+            if now <= p:
+                self.onBuyEvent(now, p, point)
+        for p in self.salePriceList:
+            if now >= p:
+                self.onSaleEvent(now, p, point)
