@@ -1,6 +1,6 @@
-from point import Point
-from notify_tpl import NotifyTpl
-import notify
+from lib.point import Point
+from lib.notify_tpl import NotifyTpl
+import lib.notify as notify
 import requests
 import time
 import asyncio
