@@ -5,7 +5,6 @@ from lib.notify_tpl import NotifyTpl
 import lib.notify as notify
 import requests
 import time
-import asyncio
 
 '''
 监控一只股票
