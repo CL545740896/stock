@@ -1,3 +1,5 @@
+#coding=utf-8
+
 class NotifyTpl:
 
     def __init__(self):

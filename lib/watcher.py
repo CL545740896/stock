@@ -1,3 +1,5 @@
+#coding=utf-8
+
 from lib.point import Point
 from lib.notify_tpl import NotifyTpl
 import lib.notify as notify
