@@ -36,6 +36,7 @@ class Watcher:
         self.status = Watcher.STATUS_STOP
 
     def watchOnce(self):
+        print('watch once', self.code)
         if not Point.isStcokTime(): return
         point = Point.getNow(self.code)
         self.onNewPoint(point)
