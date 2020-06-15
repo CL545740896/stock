@@ -1,5 +1,4 @@
 from point import Point
-from watcher import Watcher
 import time
 import asyncio
 
@@ -15,4 +14,5 @@ watcher.start()
 '''
 
 from point import Point
-print(Point.isStcokTime())
+p = Point().getNow('sz159919')
+p.print()
