@@ -36,7 +36,7 @@ class Point:
         p.code, p.name, p.dayBegin, p.lastdayEnd, p.now, p.dayMax, p.dayMin, p.time = code, fields[0], float(fields[1]), float(fields[2]), float(fields[3]), float(fields[4]), float(fields[5]), ' '.join([ fields[-3], fields[-2] ])
         return p
 
-    def print(self):
+    def dump(self):
         m = {
             'code' : self.code,
             'name' : self.name,
