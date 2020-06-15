@@ -8,9 +8,9 @@ import gevent
 import gevent.monkey
 gevent.monkey.patch_all()
 
-def run(stock):
+def run(stock, notifyUrl):
     print('stock2',stock)
-    watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'])
+    watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl)
     watcher.start()
 
 if __name__ == '__main__':
@@ -20,6 +20,6 @@ if __name__ == '__main__':
         sys.exit()
     taskList = []
     for stock in conf.reload().data['stockList']:
-        t = gevent.spawn(run, stock)
+        t = gevent.spawn(run, stock, conf.reload().data['notifyUrl'])
         taskList.append(t)
     gevent.joinall(taskList)
