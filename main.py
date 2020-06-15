@@ -3,19 +3,22 @@ from lib.watcher import Watcher
 import sys
 import multiprocessing
 import time
+import gevent
+import gevent.monkey
+gevent.monkey.patch_all()
 
-conf = Config("./config.json")
-if not conf.isOK():
-    print('conf has syntax error')
-    sys.exit()
-
-watcherList = []
-for stock in conf.reload().data['stockList']:
+def run(stock):
+    print('stock2',stock)
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'])
-    watcherList.append(watcher)
+    watcher.start()
 
-for watcher in  watcherList:
-    p = multiprocessing.Process(target=watcher.start(), args=())
-    p.start()
-
-while 1: time.sleep(3600)
+if __name__ == '__main__':
+    conf = Config("./config.json")
+    if not conf.isOK():
+        print('conf has syntax error')
+        sys.exit()
+    taskList = []
+    for stock in conf.reload().data['stockList']:
+        t = gevent.spawn(run, stock)
+        taskList.append(t)
+    gevent.joinall(taskList)
