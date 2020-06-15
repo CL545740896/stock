@@ -1,2 +1,2 @@
 requests
-agileutil=12.90
+agileutil==12.90
