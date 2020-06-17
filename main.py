@@ -10,7 +10,6 @@ import gevent.monkey
 gevent.monkey.patch_all()
 
 def run(stock, notifyUrl):
-    print('stock2',stock)
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl)
     watcher.start()
 

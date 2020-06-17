@@ -5,6 +5,7 @@ from lib.notify_tpl import NotifyTpl
 import lib.notify as notify
 import requests
 import time
+from agileutil.log import Log
 
 '''
 监控一只股票
@@ -23,6 +24,7 @@ class Watcher:
         self.salePriceList = salePriceList
         self.notifyUrl = notifyUrl
         self.status = Watcher.STATUS_STOP 
+        self.logger = Log('./watcher.log')
 
     def start(self):
         self.status = Watcher.STATUS_RUN
@@ -37,7 +39,6 @@ class Watcher:
         self.status = Watcher.STATUS_STOP
 
     def watchOnce(self):
-        print('watch once', self.code)
         if not Point.isStcokTime(): return
         try:
             point = Point.getNow(self.code)
@@ -56,8 +57,8 @@ class Watcher:
         notify.sendDDMsg(self.notifyUrl, msg)
 
     def onNewPoint(self, point):
+        self.logger.info("code:%s, now:%s" % (point.code, point.now))
         now = point.now
-        print('now:', now)
         for p in self.buyPriceList:
             if now <= p:
                 self.onBuyEvent(now, p, point)
