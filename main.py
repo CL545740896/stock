@@ -1,6 +1,7 @@
 #coding=utf-8
 from lib.config import Config
 from lib.watcher import Watcher
+from lib.point import Point
 import sys
 import multiprocessing
 import time

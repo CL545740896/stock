@@ -39,7 +39,10 @@ class Watcher:
     def watchOnce(self):
         print('watch once', self.code)
         if not Point.isStcokTime(): return
-        point = Point.getNow(self.code)
+        try:
+            point = Point.getNow(self.code)
+        except:
+            return
         self.onNewPoint(point)
 
     def onBuyEvent(self, nowPrice, buyPrice, point):
