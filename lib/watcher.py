@@ -49,12 +49,12 @@ class Watcher:
     def onBuyEvent(self, nowPrice, buyPrice, point):
         print('on buy event', 'now:', nowPrice, 'buy:', buyPrice)
         msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_BUY, '(<=%s)' % buyPrice)
-        notify.sendDDMsg(self.notifyUrl, msg)
+        notify.safeSendDDMsg(self.notifyUrl, msg)
 
     def onSaleEvent(self, nowPrice, salePrice, point):
         print('on sale event', 'now:', nowPrice, 'sale:', salePrice)
         msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_SALE, '(>=%s)' % salePrice)
-        notify.sendDDMsg(self.notifyUrl, msg)
+        notify.safeSendDDMsg(self.notifyUrl, msg)
 
     def onNewPoint(self, point):
         self.logger.info("code:%s, name:%s, now:%s" % (point.code, point.name, point.now))
