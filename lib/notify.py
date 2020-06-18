@@ -2,8 +2,10 @@
 
 import requests
 import demjson
+import lib.util as util
 
 def sendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
+    util.disable_requests_warn()
     print('send msg:', msg, ddrotUrl)
     headers = {'Content-Type' : 'application/json'}
     params = {
