@@ -5,8 +5,11 @@ from lib.point import Point
 import sys
 import multiprocessing
 import time
+import os
 import gevent
 import gevent.monkey
+
+os.environ['TZ'] = 'Asia/Shanghai'
 gevent.monkey.patch_all()
 
 def run(stock, notifyUrl):
