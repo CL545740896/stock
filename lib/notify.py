@@ -14,6 +14,7 @@ def sendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
     }
     data = demjson.encode(params)
     r = requests.post(url = ddrotUrl, headers=headers, data=data, timeout = timeout, verify=False)
+    import sys;sys.exit(0)
     return r.status_code, r.text
 
 def safeSendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
