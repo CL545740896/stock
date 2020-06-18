@@ -24,7 +24,7 @@ class Watcher:
         self.salePriceList = salePriceList
         self.notifyUrl = notifyUrl
         self.status = Watcher.STATUS_STOP 
-        self.logger = Log('./watcher.log')
+        self.logger = Log('./' + self.code + '.log')
 
     def start(self):
         self.status = Watcher.STATUS_RUN
