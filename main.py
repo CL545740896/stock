@@ -1,21 +1,30 @@
 #coding=utf-8
+import gevent
+import gevent.monkey
+gevent.monkey.patch_all()
 from lib.config import Config
 from lib.watcher import Watcher
 from lib.point import Point
+from lib.queue import UniQueue
+import lib.notify
 import sys
 import multiprocessing
 import time
 import os
-import gevent
-import gevent.monkey
-
 os.environ['TZ'] = 'Asia/Shanghai'
-gevent.monkey.patch_all()
 
-'''
+
 def run(stock, notifyUrl):
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl)
     watcher.start()
+
+def push_msg():
+    while 1:
+        time.sleep(1)
+        msg = UniQueue.getInstance().pop()
+        if msg == None:
+            continue
+        lib.notify.safeSendDDMsg(conf.reload().data['notifyUrl'], msg)
 
 if __name__ == '__main__':
     conf = Config("./config.json")
@@ -26,8 +35,9 @@ if __name__ == '__main__':
     for stock in conf.reload().data['stockList']:
         t = gevent.spawn(run, stock, conf.reload().data['notifyUrl'])
         taskList.append(t)
-    gevent.joinall(taskList)
-'''
 
-watcher = Watcher('sh600398', buyPriceList=[5.98], salePriceList=[6.20], notifyUrl='https://oapi.dingtalk.com/robot/send?access_token=d29bc5f270e97303817f9a0e3df8ccfa3e31efc04b04c8c2854765affb5b3fd9')
-watcher.start()
+    #推送买入、卖出消息
+    t = gevent.spawn(push_msg)
+    taskList.append(t)
+
+    gevent.joinall(taskList)
