@@ -57,7 +57,7 @@ class Watcher:
         notify.sendDDMsg(self.notifyUrl, msg)
 
     def onNewPoint(self, point):
-        self.logger.info("code:%s, now:%s" % (point.code, point.now))
+        self.logger.info("code:%s, name:%s, now:%s" % (point.code, point.name, point.now))
         now = point.now
         for p in self.buyPriceList:
             if now <= p:
