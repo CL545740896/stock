@@ -6,7 +6,7 @@ import lib.notify as notify
 import requests
 import time
 from agileutil.log import Log
-from lib.queue import UniQueue
+from agileutil.queue import UniMemQueue
 
 '''
 监控一只股票
@@ -50,12 +50,12 @@ class Watcher:
     def onBuyEvent(self, nowPrice, buyPrice, point):
         print('on buy event', 'now:', nowPrice, 'buy:', buyPrice)
         msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_BUY, '(<=%s)' % buyPrice)
-        UniQueue.getInstance().push(msg)
+        UniMemQueue.getInstance().push(msg)
 
     def onSaleEvent(self, nowPrice, salePrice, point):
         print('on sale event', 'now:', nowPrice, 'sale:', salePrice)
         msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_SALE, '(>=%s)' % salePrice)
-        UniQueue.getInstance().push(msg)
+        UniMemQueue.getInstance().push(msg)
 
     def onNewPoint(self, point):
         self.logger.info("code:%s, name:%s, now:%s" % (point.code, point.name, point.now))

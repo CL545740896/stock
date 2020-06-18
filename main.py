@@ -5,12 +5,12 @@ gevent.monkey.patch_all()
 from lib.config import Config
 from lib.watcher import Watcher
 from lib.point import Point
-from lib.queue import UniQueue
 import lib.notify
 import sys
 import multiprocessing
 import time
 import os
+from agileutil.queue import UniMemQueue
 os.environ['TZ'] = 'Asia/Shanghai'
 
 
@@ -21,7 +21,7 @@ def run(stock, notifyUrl):
 def push_msg():
     while 1:
         time.sleep(1)
-        msg = UniQueue.getInstance().pop()
+        msg = UniMemQueue.getInstance().pop()
         if msg == None:
             continue
         lib.notify.safeSendDDMsg(conf.reload().data['notifyUrl'], msg)
