@@ -58,7 +58,7 @@ class Watcher:
         UniMemQueue.getInstance().push(msg)
 
     def onNewPoint(self, point):
-        self.logger.info("code:%s, name:%s, now:%s" % (point.code, point.name, point.now))
+        self.logger.info("code:%s, name:%s, now:%s, time:%s" % (point.code, point.name, point.now, point.time))
         now = point.now
         for p in self.buyPriceList:
             if now <= p:
