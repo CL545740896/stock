@@ -27,6 +27,10 @@ class Watcher:
         self.notifyUrl = notifyUrl
         self.status = Watcher.STATUS_STOP 
         self.logger = Log('./' + self.code + '.log')
+        self.commonLogger = None
+
+    def setCommonLogger(self, logger):
+        self.commonLogger = logger
 
     def start(self):
         self.status = Watcher.STATUS_RUN
@@ -62,6 +66,8 @@ class Watcher:
 
     def onNewPoint(self, point):
         self.logger.info("code:%s, name:%s, now:%s, time:%s" % (point.code, point.name, point.now, point.time))
+        if self.commonLogger:
+            self.commonLogger.info("code:%s, name:%s, now:%s, time:%s" % (point.code, point.name, point.now, point.time))
         now = point.now
         for p in self.buyPriceList:
             if now <= p:

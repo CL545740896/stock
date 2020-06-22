@@ -11,11 +11,14 @@ import multiprocessing
 import time
 import os
 from agileutil.queue import UniMemQueue
+from agileutil.log import Log
 os.environ['TZ'] = 'Asia/Shanghai'
+commonLogger = Log('./common.log')
 
 
 def run(stock, notifyUrl):
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl)
+    watcher.setCommonLogger(commonLogger)
     watcher.start()
 
 def push_msg():
