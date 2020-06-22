@@ -40,7 +40,9 @@ class Watcher:
         self.status = Watcher.STATUS_STOP
 
     def watchOnce(self):
-        if not Point.isStcokTime(): return
+        if not Point.isStcokTime(): 
+            print('is not stock time')
+            return
         try:
             point = Point.getNow(self.code)
         except:
