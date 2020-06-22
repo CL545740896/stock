@@ -7,6 +7,7 @@ import requests
 import time
 from agileutil.log import Log
 from agileutil.queue import UniMemQueue
+import agileutil.date as dt
 
 '''
 监控一只股票
@@ -41,7 +42,7 @@ class Watcher:
 
     def watchOnce(self):
         if not Point.isStcokTime(): 
-            print('is not stock time')
+            print('is not stock time, current time:' + str(dt.current_time()))
             return
         try:
             point = Point.getNow(self.code)
