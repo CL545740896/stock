@@ -30,7 +30,7 @@ class Point:
     @classmethod
     def getNow(cls, code):
         url = cls.sinaURL + '/list=' + code
-        r = requests.get(url)
+        r = requests.get(url, timeout=10)
         fields = r.text.replace('var hq_str_' + code + '=', '').replace("\"", '').split(',')
         p = Point()
         p.code, p.name, p.dayBegin, p.lastdayEnd, p.now, p.dayMax, p.dayMin, p.time = code, fields[0], float(fields[1]), float(fields[2]), float(fields[3]), float(fields[4]), float(fields[5]), ' '.join([ fields[-3], fields[-2] ])
