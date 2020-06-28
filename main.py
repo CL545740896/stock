@@ -24,7 +24,7 @@ def run(stock, notifyUrl):
 
 def push_msg():
     while 1:
-        time.sleep(5)
+        time.sleep(10)
         msg = UniMemQueue.getInstance().pop()
         if msg == None:
             continue
