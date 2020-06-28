@@ -17,13 +17,11 @@ import agileutil.wrap as awrap
 os.environ['TZ'] = 'Asia/Shanghai'
 commonLogger = Log('./common.log')
 
-@awrap.safe
 def run(stock, notifyUrl):
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl)
     watcher.setCommonLogger(commonLogger)
     watcher.start()
 
-@awrap.safe
 def push_msg():
     while 1:
         time.sleep(5)
@@ -32,7 +30,6 @@ def push_msg():
             continue
         lib.notify.safeSendDDMsg(conf.reload().data['notifyUrl'], msg)
 
-@awrap.safe
 def gen_report():
     while 1:
         for stock in conf.reload().data['stockList']:
