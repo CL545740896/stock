@@ -24,7 +24,7 @@ def run(stock, notifyUrl):
 
 def push_msg():
     while 1:
-        time.sleep(10)
+        time.sleep(30)
         msg = UniMemQueue.getInstance().pop()
         if msg == None:
             continue
@@ -37,6 +37,11 @@ def gen_report():
             pointList = sh.getPointList()
             print(pointList)
             time.sleep(1)
+
+def dump_queue():
+    while 1:
+        time.sleep(5)
+        commonLogger.info('queue rest:' + str( UniMemQueue.getInstance().count() ))
 
 if __name__ == '__main__':
     conf = Config("./config.json")
@@ -55,5 +60,10 @@ if __name__ == '__main__':
     #生成最近15个交易日的这线图
     #t = gevent.spawn(gen_report)
     #taskList.append(t)
+
+    #打印消息队列积压
+    t = gevent.spawn(dump_queue)
+    taskList.append(t)
+
 
     gevent.joinall(taskList)
