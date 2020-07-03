@@ -30,13 +30,41 @@ def push_msg():
             continue
         lib.notify.safeSendDDMsg(conf.reload().data['notifyUrl'], msg)
 
+@awrap.safe
+def get_report(code):
+    pointList = []
+    lastPoint = Point()
+    with open('./' + code + '.log', 'r') as f:
+        while 1:
+            line = f.readline()
+            if line:
+                fields = line.split(' ')
+                code = fields[6].split(':')[1].replace(',', '')
+                name = fields[7].split(':')[1].replace(',', '')
+                now = fields[8].split(':')[1].replace(',', '')
+                time = ':'.join( fields[9].split(':')[1:] )
+                if now == lastPoint.now:
+                    continue
+                point = Point()
+                point.code, point.name, point.now, point.time = code, name, now, time
+                lastPoint = point
+                pointList.append(point)
+            else:
+                break
+    lastPoint.time = '15:30:00'
+    pointList.append(lastPoint)
+    return pointList
+
+
 def gen_report():
+    lastStockTag = False
     while 1:
-        for stock in conf.reload().data['stockList']:
-            sh = StockHistory(stock['code'], '20200601', '20200623')
-            pointList = sh.getPointList()
-            print(pointList)
-            time.sleep(1)
+        time.sleep(30)
+        currentStockTag = Point.isStcokTime()
+        if currentStockTag != lastStockTag and currentStockTag == False and lastStockTag == True:
+            for stock in conf.reload().data['stockList']:
+                get_report(stock['code'])
+        lastStockTag = currentStockTag
 
 def dump_queue():
     while 1:
@@ -57,13 +85,12 @@ if __name__ == '__main__':
     t = gevent.spawn(push_msg)
     taskList.append(t)
 
-    #生成最近15个交易日的这线图
-    #t = gevent.spawn(gen_report)
-    #taskList.append(t)
-
     #打印消息队列积压
     t = gevent.spawn(dump_queue)
     taskList.append(t)
 
+    #生成交易日当天k线图
+    #t = gevent.spawn(gen_report)
+    #taskList.append(t)
 
     gevent.joinall(taskList)

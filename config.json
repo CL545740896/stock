@@ -1,9 +1,9 @@
 {
     "notifyUrl" : "https://oapi.dingtalk.com/robot/send?access_token=d29bc5f270e97303817f9a0e3df8ccfa3e31efc04b04c8c2854765affb5b3fd9",
     "stockList" : [
-        {"code" : "sz159919", "buyPriceList" : [3.98], "salePriceList" : [4.25]},
-        {"code" : "sh600029", "buyPriceList" : [5.00], "salePriceList" : [5.50]},
-        {"code" : "sh600398", "buyPriceList" : [5.80], "salePriceList" : [6.20]},
-        {"code" : "sz000659", "buyPriceList" : [2.20], "salePriceList" : [2.40]}
+        {"code" : "sz159919", "buyPriceList" : [4.3], "salePriceList" : []},
+        {"code" : "sh600029", "buyPriceList" : [5.15], "salePriceList" : [5.45]},
+        {"code" : "sh600398", "buyPriceList" : [6.2], "salePriceList" : [6.4]},
+        {"code" : "sh600036", "buyPriceList" : [36.20], "salePriceList" : [36.80]}
     ]
 }

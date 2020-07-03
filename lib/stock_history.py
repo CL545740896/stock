@@ -71,9 +71,3 @@ class StockHistory:
         except Exception as ex:
             err = str(ex)
         return pointList, err
-
-sh = StockHistory('sz159919', 20200601, 20200621)
-pointList, err = sh.getPointList()
-if err != None: import sys;print(err);sys.exit(0)
-for p in pointList:
-    print(p.time, p.dayEnd)

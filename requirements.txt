@@ -1,4 +1,4 @@
 #apt-get install python3-dev -y
 requests==2.22.0
-agileutil==12.90
+agileutil==12.93.5
 gevent==20.6.1
