@@ -20,7 +20,7 @@ class Watcher:
     STATUS_RUN = 1
     STATUS_STOP = 2
 
-    def __init__(self, code, buyPriceList = [], salePriceList = [], notifyUrl = ''):
+    def __init__(self, code, buyPriceList = [], salePriceList = [], notifyUrl = '', conf = None):
         self.code = code
         self.buyPriceList = buyPriceList
         self.salePriceList = salePriceList
@@ -28,6 +28,22 @@ class Watcher:
         self.status = Watcher.STATUS_STOP 
         self.logger = Log('./' + self.code + '.log')
         self.commonLogger = None
+        self.globalConf = conf
+
+    def isDisable(self):
+        if self.globalConf == None:
+            return False
+        findStock = None
+        for stock in self.globalConf.reload().data['stockList']:
+            if stock['code'] == self.code:
+                findStock = stock
+                break
+        if findStock == None:
+            return True
+        if 'enable' in findStock and findStock['enable'] == False:
+            return True
+        else:
+            return False
 
     def setCommonLogger(self, logger):
         self.commonLogger = logger
@@ -39,6 +55,9 @@ class Watcher:
             if self.status == Watcher.STATUS_STOP:
                 print('watcher stopped')
                 return
+            if self.isDisable():
+                print('%s warcher disable' % self.code )
+                continue
             self.watchOnce()
 
     def stop(self):

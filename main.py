@@ -17,8 +17,8 @@ import agileutil.wrap as awrap
 os.environ['TZ'] = 'Asia/Shanghai'
 commonLogger = Log('./common.log')
 
-def run(stock, notifyUrl):
-    watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl)
+def run(stock, notifyUrl, conf):
+    watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl, conf=conf)
     watcher.setCommonLogger(commonLogger)
     watcher.start()
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
         sys.exit()
     taskList = []
     for stock in conf.reload().data['stockList']:
-        t = gevent.spawn(run, stock, conf.reload().data['notifyUrl'])
+        t = gevent.spawn(run, stock, conf.reload().data['notifyUrl'], conf)
         taskList.append(t)
 
     #推送买入、卖出消息
