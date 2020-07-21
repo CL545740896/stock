@@ -13,9 +13,14 @@ import os
 from agileutil.queue import UniMemQueue
 from agileutil.log import Log
 from lib.stock_history import StockHistory
+from lib.stock import StockList
 import agileutil.wrap as awrap
 os.environ['TZ'] = 'Asia/Shanghai'
 commonLogger = Log('./common.log')
+
+def init():
+    StockList.getInstance().getAllStock()
+
 
 def run(stock, notifyUrl, conf):
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl, conf=conf)
@@ -76,6 +81,9 @@ if __name__ == '__main__':
     if not conf.isOK():
         print('conf has syntax error')
         sys.exit()
+
+    init()
+
     taskList = []
     for stock in conf.reload().data['stockList']:
         t = gevent.spawn(run, stock, conf.reload().data['notifyUrl'], conf)
