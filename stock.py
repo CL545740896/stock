@@ -14,9 +14,11 @@ from agileutil.queue import UniMemQueue
 from agileutil.log import Log
 from lib.stock_history import StockHistory
 from lib.stock import StockList
+import lib.strategy as strategy
 import agileutil.wrap as awrap
 os.environ['TZ'] = 'Asia/Shanghai'
 commonLogger = Log('./common.log')
+strategyLogger = Log("./stragegy.log")
 
 def init():
     StockList.getInstance().getAllStock()
@@ -97,8 +99,9 @@ if __name__ == '__main__':
     t = gevent.spawn(dump_queue)
     taskList.append(t)
 
-    #生成交易日当天k线图
-    #t = gevent.spawn(gen_report)
-    #taskList.append(t)
+    #跑策略
+    t = gevent.spawn(strategy.run_high_prob_role_strategy, strategyLogger)
+    taskList.append(t)
+
 
     gevent.joinall(taskList)

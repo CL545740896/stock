@@ -5,5 +5,7 @@
         {"code" : "sh600029", "name":"南方航空", "buyPriceList" : [5.15], "salePriceList" : [5.45], "enable" : false},
         {"code" : "sh600398", "name" : "海澜之家", "buyPriceList" : [6.10], "salePriceList" : [6.33], "enable" : false},
         {"code" : "sh600036", "name" : "招商银行", "buyPriceList" : [36.20], "salePriceList" : [36.80], "enable" : false}
+    ],
+    "strategy" : [
     ]
 }

@@ -7,6 +7,8 @@
 from lib.point import Point
 import requests
 import demjson
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class StockHistory:
 
@@ -62,6 +64,7 @@ class StockHistory:
                 p = Point()
                 # 0    1    2    3    4    5    6    7       8    9
                 #日期，开盘，收盘，涨跌，涨幅，最低，最高，成交量，成交额，换手
+                p.code = self.code
                 p.time = dayData[0]
                 p.dayBegin = dayData[1]
                 p.dayEnd = dayData[2]
