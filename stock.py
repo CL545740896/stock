@@ -21,6 +21,7 @@ commonLogger = Log('./common.log')
 strategyLogger = Log("./stragegy.log")
 
 def init():
+    lib.notify.initMsgQueue()
     StockList.getInstance().getAllStock()
 
 
@@ -97,6 +98,10 @@ if __name__ == '__main__':
 
     #打印消息队列积压
     t = gevent.spawn(dump_queue)
+    taskList.append(t)
+
+    #异步消息
+    t = gevent.spawn(lib.notify.asyncMsgConsume)
     taskList.append(t)
 
     #跑策略

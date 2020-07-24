@@ -1,5 +1,5 @@
 {
-    "notifyUrl" : "https://oapi.dingtalk.com/robot/send?access_token=d29bc5f270e97303817f9a0e3df8ccfa3e31efc04b04c8c2854765affb5b3fd9",
+    "notifyUrl" : "https://oapi.dingtalk.com/robot/send?access_token=0ba7cd48a4b41275179d4b75aff67eae8eaa101846ad25be330bfe03ba6da644",
     "stockList" : [
         {"code" : "sz159919", "name":"300ETF","buyPriceList" : [4.70], "salePriceList" : [4.95], "enable" : false},
         {"code" : "sh600029", "name":"南方航空", "buyPriceList" : [5.15], "salePriceList" : [5.45], "enable" : false},

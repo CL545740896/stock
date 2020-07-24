@@ -52,17 +52,18 @@ class HighProbRoseStrategy(BaseStrategy):
 	'''
 
 	@classmethod
-	def analyseOneStock(cls, stock, beforeDayNum, sleepIntval, concurrentNum):
+	def analyseOneStock(cls, stock, beforeDayNum):
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
 		#for test
 		#print('run strategy', stock.code)
-		startDate, endDate = cls.getBeginEndDate()
+		startDate, endDate = cls.getBeginEndDate(beforeDayNum)
 		sh = StockHistory(code = stock.code, startDate = startDate, endDate = endDate)
 		pointList, err = sh.getPointList()
 		if err != None:
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
+		pointList = pointList[0:beforeDayNum-2]
 		cls.logInfo( "code:%s, name:%s, get history succed" % (stock.code, stock.name) )
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
@@ -75,7 +76,6 @@ class HighProbRoseStrategy(BaseStrategy):
 			if float(now.now) >= float(point.dayMin):
 				isLatestMin = False
 				break
-		if not isLatestMin: return
 		#判断最近几天是否有振荡 (判断是否有涨有跌)
 		roseNum = 0
 		fallNum = 0
@@ -86,46 +86,54 @@ class HighProbRoseStrategy(BaseStrategy):
 				fallNum = fallNum + 1
 		if roseNum == 0:
 			#最近几天一直下跌, 忽略
+			print(stock.name, '最近', len(pointList), '天', '一直下跌')
 			return
 		if fallNum == 0:
 			#最近几天一直上涨, 忽略
+			print(stock.name, '最近', len(pointList), '天', '一直上涨')
 			return
 		if roseNum > 0 and fallNum > 0:
+			print(stock.name, '最近', len(pointList), '天', '振荡')
+			if not isLatestMin: return
 			info, err = stock.getInfo()
 			if err != None:
 				print('get stock info failed:' + str(err))
 				return
 			#最近几天有涨有跌，发送买入信号
-			conf = Config("./config.json")
-			if not conf.isOK(): return
+			dyPe, staPe, err = stock.getPe()
+			if err != None:
+				print('get pe failed:', err)
+				return
+			if dyPe < 0 or staPe < 0: return
+			if not (dyPe <= 20): return
 			print('buy event:', stock.code, stock.name, stock.peTtm, info)
-			msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList))
-			notify.safeSendDDMsg(conf.reload().data['notifyUrl'], msg)
+			msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe)
+			notify.asyncSendMsg(msg)
 
 
 	@classmethod
-	def scanOnce(cls, beforeDayNum, sleepIntval, concurrentNum):
-		if not Point.isStcokTime(): return
-		#if not Point.isStcokTime() and False: return
+	def scanOnce(cls, beforeDayNum, concurrentNum):
+		#if not Point.isStcokTime(): return
+		if not Point.isStcokTime() and False: return
 		concurrentPool = pool.Pool(concurrentNum)
 		stockList = StockList.getAllStock()
 		for stock in stockList:
-			concurrentPool.spawn(cls.analyseOneStock, stock, beforeDayNum, sleepIntval, concurrentNum)
+			concurrentPool.spawn(cls.analyseOneStock, stock, beforeDayNum)
 			#for test
 			#return
 
 	@classmethod
-	def safeScan(cls, beforeDayNum, sleepIntval, concurrentNum):
+	def safeScan(cls, beforeDayNum, concurrentNum):
 		try:
-			cls.scanOnce(beforeDayNum, sleepIntval, concurrentNum)
+			cls.scanOnce(beforeDayNum, concurrentNum)
 		except Exception as ex:
 			cls.logError("safeScan catch exception:" + str(ex))
 		cls.logInfo("scan once")
 
 	@classmethod
-	def run(cls, beforeDayNum = 7, sleepIntval = 20, concurrentNum = 100):
+	def run(cls, beforeDayNum = 10, sleepIntval = 20, concurrentNum = 100):
 		while 1:
-			cls.safeScan(beforeDayNum, sleepIntval, concurrentNum)
+			cls.safeScan(beforeDayNum, concurrentNum)
 			time.sleep(sleepIntval)
 
 

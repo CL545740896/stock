@@ -45,6 +45,47 @@ class Stock:
 			return [], str(ex)
 		return data, None
 
+	@classmethod
+	def getByName(cls, name):
+		stockList = StockList.getAllStock()
+		nameStockMap = {}
+		for stock in stockList:
+			nameStockMap[stock.name] = stock
+		if name in nameStockMap:
+			return nameStockMap[name]
+		return None
+
+	def fetchPe(self):
+		url = 'https://stock.xueqiu.com/v5/stock/quote.json?symbol=%s&extend=detail' % self.code
+		headers = {
+		    'Cookie' : 's=d811jej3wn; device_id=7a4981ca5bec19d55e5b932ebdd7a3b4; aliyungf_tc=AQAAAPXlQiwi2AAAEOT7ciyRymMNb7Id; xq_a_token=ad923af9f68bb6a13ada0962232589cea11925c4; xqat=ad923af9f68bb6a13ada0962232589cea11925c4; xq_r_token=cf0e6f767c2318f1f1779fcee9323365f02e1b4b; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTU5NjE2MjgxNSwiY3RtIjoxNTk1MzMxNjUyMDUzLCJjaWQiOiJkOWQwbjRBWnVwIn0.FgAkF-boF_MquIfBejwPAj3Xq1yehunyuAdQsrcSm9OPcO_AIEM77haw2cuhGBHgzZOuZR5zcU_t68G-vAp7U5WyQeMJxK1r3Ddpr8U-svMIZi---6Vj1PkIKMU_JMjlRKREnTZ2zrEpqCwlbtx4VPQr3yTmAFSfbtg38_9sJ2-tN-gJ3KUwvNbRYlHs473JGIdlRBYzF8fjr5WCABZiqC8nnprrAUXmAsMGpoVMOndKtFUnsFh-BW4xa36AQk2Wto75TVTtWIgqYRgDIkucd9wPFuKAi26I5EaG19KT7XtGwGTnkM4KxSGFTtJCzM_N6yUdmGUxxPJFv6fL9_TmvA; u=211595331675076; acw_tc=2760825415954062862922319e4cf4a1e515a6e1bb203be12f6a70642cda77; Hm_lvt_1db88642e346389874251b5a1eded6e3=1593573481,1593781252,1595331676,1595406288; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1595406288',
+		    "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
+		}
+		r = None
+		try:
+			r = requests.get(url, verify = False, headers = headers)
+		except Exception as ex:
+			return '', str(ex)
+		if r.status_code != 200:
+			return '', 'http status code:%s' % r.status_code
+		return r.text, None
+
+	def getPe(self):
+		'''
+		返回动态市盈率和静态市盈率
+		'''
+		dyPe, staticPe = -1, -1
+		raw, err = self.fetchPe()
+		if err != None:
+			return dyPe, staticPe, err
+		try:
+			data = demjson.decode(raw)
+			dyPe = data['data']['quote']['pe_forecast']
+			staticPe = data['data']['quote']['pe_lyr']
+		except Exception as ex:
+			return dyPe, staticPe, err
+		return dyPe, staticPe, None
+
 
 class StockList:
 
