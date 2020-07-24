@@ -113,8 +113,8 @@ class HighProbRoseStrategy(BaseStrategy):
 
 	@classmethod
 	def scanOnce(cls, beforeDayNum, concurrentNum):
-		#if not Point.isStcokTime(): return
-		if not Point.isStcokTime() and False: return
+		if not Point.isStcokTime(): return
+		#if not Point.isStcokTime() and False: return
 		concurrentPool = pool.Pool(concurrentNum)
 		stockList = StockList.getAllStock()
 		for stock in stockList:
