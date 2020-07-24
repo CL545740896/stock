@@ -12,8 +12,10 @@ class Point:
         self.code = None
         #股票名称
         self.name = None
-        #今日开盘价
+        #开盘价
         self.dayBegin = None
+        #收盘价
+        self.dayEnd = None
         #昨日收盘价
         self.lastdayEnd = None
         #当前价格
@@ -31,6 +33,7 @@ class Point:
     def getNow(cls, code):
         url = cls.sinaURL + '/list=' + code
         r = requests.get(url, timeout=10)
+        print(r.text)
         fields = r.text.replace('var hq_str_' + code + '=', '').replace("\"", '').split(',')
         p = Point()
         p.code, p.name, p.dayBegin, p.lastdayEnd, p.now, p.dayMax, p.dayMin, p.time = code, fields[0], float(fields[1]), float(fields[2]), float(fields[3]), float(fields[4]), float(fields[5]), ' '.join([ fields[-3], fields[-2] ])
@@ -41,6 +44,7 @@ class Point:
             'code' : self.code,
             'name' : self.name,
             'dayBegin' : self.dayBegin,
+            'dayEnd' : self.dayEnd,
             'lastdayEnd' : self.lastdayEnd,
             'now' : self.now,
             'dayMax' : self.dayMax,

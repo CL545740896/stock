@@ -76,6 +76,8 @@ class StockList:
 				)
 				stockList.append(stock)
 			cls.stockList = stockList
+		#for test
+		#return  [ cls.stockList[20] ]
 		return cls.stockList
 
 	@classmethod
