@@ -52,7 +52,7 @@ class HighProbRoseStrategy(BaseStrategy):
 	'''
 
 	@classmethod
-	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 20, allowStaticPe = 20, allowPb = 10, allowLowPrice = 20, allowHighPrice = 40):
+	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 20, allowStaticPe = 20, allowPb = 10, allowLowPrice = 10, allowHighPrice = 40):
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
 		startDate, endDate = cls.getBeginEndDate(beforeDayNum)
