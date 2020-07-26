@@ -53,10 +53,10 @@ class Watcher:
         while 1:
             time.sleep(1)
             if self.status == Watcher.STATUS_STOP:
-                print('watcher stopped')
+                #print('watcher stopped')
                 return
             if self.isDisable():
-                print('%s warcher disable' % self.code )
+                #print('%s warcher disable' % self.code )
                 continue
             self.watchOnce()
 
@@ -74,12 +74,12 @@ class Watcher:
         self.onNewPoint(point)
 
     def onBuyEvent(self, nowPrice, buyPrice, point):
-        print('on buy event', 'now:', nowPrice, 'buy:', buyPrice)
+        #print('on buy event', 'now:', nowPrice, 'buy:', buyPrice)
         msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_BUY, '(<=%s)' % buyPrice)
         UniMemQueue.getInstance().push(msg)
 
     def onSaleEvent(self, nowPrice, salePrice, point):
-        print('on sale event', 'now:', nowPrice, 'sale:', salePrice)
+        #print('on sale event', 'now:', nowPrice, 'sale:', salePrice)
         msg = NotifyTpl.genNotify(point.name, nowPrice, NotifyTpl.ACTION_SALE, '(>=%s)' % salePrice)
         UniMemQueue.getInstance().push(msg)
 

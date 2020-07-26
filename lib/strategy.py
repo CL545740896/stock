@@ -2,9 +2,9 @@
 
 import gevent
 from gevent import socket,monkey,pool
-monkey.patch_all()
+#monkey.patch_all()
 from lib.point import Point
-from lib.stock import StockList
+from lib.stock import StockList, Stock
 from lib.stock_history import StockHistory
 from lib.point import Point
 from lib.notify_tpl import NotifyTpl
@@ -52,11 +52,9 @@ class HighProbRoseStrategy(BaseStrategy):
 	'''
 
 	@classmethod
-	def analyseOneStock(cls, stock, beforeDayNum):
+	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 20, allowStaticPe = 20, allowPb = 10, allowLowPrice = 20, allowHighPrice = 40):
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
-		#for test
-		#print('run strategy', stock.code)
 		startDate, endDate = cls.getBeginEndDate(beforeDayNum)
 		sh = StockHistory(code = stock.code, startDate = startDate, endDate = endDate)
 		pointList, err = sh.getPointList()
@@ -64,10 +62,13 @@ class HighProbRoseStrategy(BaseStrategy):
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
 		pointList = pointList[0:beforeDayNum-2]
-		cls.logInfo( "code:%s, name:%s, get history succed" % (stock.code, stock.name) )
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
 		now = Point.getNow(stock.code)
+		line = stock.name + ' now:' + str(now.now)
+		for p in pointList:
+			line = line + "|%s %s %s|" % (p.dayBegin, p.dayEnd, p.time)
+		print(line, beforeDayNum, startDate, endDate, len(pointList), now.now)
 		isLatestMin = True
 		for point in pointList:
 			#按照日期升序2020-07-13 ~ 2020-07-14
@@ -76,7 +77,10 @@ class HighProbRoseStrategy(BaseStrategy):
 			if float(now.now) >= float(point.dayMin):
 				isLatestMin = False
 				break
+		#for test
+		isLatestMin = True
 		#判断最近几天是否有振荡 (判断是否有涨有跌)
+		if isLatestMin == False: return
 		roseNum = 0
 		fallNum = 0
 		for point in pointList:
@@ -84,43 +88,52 @@ class HighProbRoseStrategy(BaseStrategy):
 				roseNum = roseNum + 1
 			else:
 				fallNum = fallNum + 1
-		if roseNum == 0:
-			#最近几天一直下跌, 忽略
-			print(stock.name, '最近', len(pointList), '天', '一直下跌')
+		if roseNum <= 0 or fallNum <= 0: return
+		dyPe, staPe, pb, err = stock.getPePb()
+		print(dyPe, staPe, pb, err)
+		cls.logInfo("pb pe :%s,%s,%s,%s" % (dyPe, staPe, pb, err) )
+		if err != None:
+			cls.logError('get pe pb info failed:' + str(err))
 			return
-		if fallNum == 0:
-			#最近几天一直上涨, 忽略
-			print(stock.name, '最近', len(pointList), '天', '一直上涨')
+		if dyPe < 0 or staPe < 0: return
+		if dyPe > allowDynicPe: return
+		if staPe > allowStaticPe: return
+		if pb > allowPb: return
+		if not (now.now >= allowLowPrice and now.now <= allowHighPrice ): return 
+		try:
+		    cls.logInfo("[buy event] code:%s, name:%s, dyPe:%s, staPe:%s, pb:%s, now:%s" % ( stock.code, stock.name, dyPe, staPe, pb, now.now) )
+		    msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe, pb)
+		    notify.asyncSendMsg(msg)
+		except Exception as ex:
+			cls.logError("send msg exception:" + str(ex))
 			return
-		if roseNum > 0 and fallNum > 0:
-			print(stock.name, '最近', len(pointList), '天', '振荡')
-			if not isLatestMin: return
-			info, err = stock.getInfo()
-			if err != None:
-				print('get stock info failed:' + str(err))
-				return
-			#最近几天有涨有跌，发送买入信号
-			dyPe, staPe, err = stock.getPe()
-			if err != None:
-				print('get pe failed:', err)
-				return
-			if dyPe < 0 or staPe < 0: return
-			if not (dyPe <= 20): return
-			print('buy event:', stock.code, stock.name, stock.peTtm, info)
-			msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe)
-			notify.asyncSendMsg(msg)
+		cls.logInfo("send once")
 
+	@classmethod
+	def safeAnaOneStock(cls, stock, beforeDayNum):
+		try:
+			cls.analyseOneStock(stock, beforeDayNum)
+		except Exception as ex:
+			print('analyse exception:' + str(ex))
 
 	@classmethod
 	def scanOnce(cls, beforeDayNum, concurrentNum):
+		cls.logInfo('ready scan')
 		if not Point.isStcokTime(): return
+		#for test
 		#if not Point.isStcokTime() and False: return
+		begin = time.time()
 		concurrentPool = pool.Pool(concurrentNum)
 		stockList = StockList.getAllStock()
+		index = 0
 		for stock in stockList:
-			concurrentPool.spawn(cls.analyseOneStock, stock, beforeDayNum)
-			#for test
-			#return
+			concurrentPool.spawn(cls.safeAnaOneStock, stock, beforeDayNum)
+			index = index + 1
+			cls.logInfo("name:%s,index:%s" % (stock.name, index) )
+		concurrentPool.join()
+		end = time.time()
+		cost = end - begin
+		cls.logInfo('scan once finish, stock num:' + str(len(stockList)) + ' cost:'+ str( int(cost) ) +' seconds')
 
 	@classmethod
 	def safeScan(cls, beforeDayNum, concurrentNum):
@@ -128,10 +141,9 @@ class HighProbRoseStrategy(BaseStrategy):
 			cls.scanOnce(beforeDayNum, concurrentNum)
 		except Exception as ex:
 			cls.logError("safeScan catch exception:" + str(ex))
-		cls.logInfo("scan once")
 
 	@classmethod
-	def run(cls, beforeDayNum = 10, sleepIntval = 20, concurrentNum = 100):
+	def run(cls, beforeDayNum = 10, sleepIntval = 20, concurrentNum = 12):
 		while 1:
 			cls.safeScan(beforeDayNum, concurrentNum)
 			time.sleep(sleepIntval)

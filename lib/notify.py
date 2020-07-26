@@ -46,6 +46,7 @@ def safeSendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
 
 def asyncSendMsg(msg):
     if msg == '': return
+    print('asyncSendMsg')
     msgQueue.push(msg)
 
 def asyncMsgConsume(sleepIntval = 60):

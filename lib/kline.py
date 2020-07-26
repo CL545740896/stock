@@ -13,7 +13,6 @@ class KLine:
         while 1:
             time.sleep(1)
             p = Point.getNow(self.code)
-            print(p.name, p.time, p.now)
             self.pointList.append(p)
 
     def collect(self, times = 3110400000):
