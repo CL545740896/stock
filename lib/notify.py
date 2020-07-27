@@ -7,8 +7,17 @@ import time
 import sys
 from agileutil.queue import UniMemQueue
 from lib.config import Config
+from agileutil.memcache import MemStringCache
 
 msgQueue = None
+straMemCache = None
+
+
+def init():
+    global straMemCache
+    if straMemCache == None:
+        straMemCache = MemStringCache()
+    initMsgQueue()
 
 def initMsgQueue():
     global msgQueue
@@ -19,6 +28,8 @@ def initMsgQueue():
         sys.exit(1)
 
 def sendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
+    v = straMemCache.get(msg)
+    if v != None: return
     util.disable_requests_warn()
     headers = {'Content-Type' : 'application/json'}
     params = {
@@ -28,6 +39,7 @@ def sendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
     data = demjson.encode(params)
     r = requests.post(url = ddrotUrl, headers=headers, data=data, timeout = timeout, verify=False)
     print('send msg:', msg, ddrotUrl, r.status_code, r.text)
+    straMemCache.set(msg, '1', 3600 * 3)
     return r.status_code, r.text
 
 def defaultSendDDMsg(msg):
@@ -46,7 +58,6 @@ def safeSendDDMsg(ddrotUrl = '', msg = '', timeout = 10):
 
 def asyncSendMsg(msg):
     if msg == '': return
-    print('asyncSendMsg')
     msgQueue.push(msg)
 
 def asyncMsgConsume(sleepIntval = 60):

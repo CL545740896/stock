@@ -62,7 +62,7 @@ class HighProbRoseStrategy(BaseStrategy):
 		if err != None:
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
-		pointList = pointList[0:beforeDayNum-2]
+		pointList = pointList[0:8]
 		for p in pointList: print(p.time)
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
@@ -101,15 +101,30 @@ class HighProbRoseStrategy(BaseStrategy):
 		if dyPe > allowDynicPe: return
 		if staPe > allowStaticPe: return
 		if pb > allowPb: return
-		if not (now.now >= allowLowPrice and now.now <= allowHighPrice ): return 
+		if not (now.now >= allowLowPrice and now.now <= allowHighPrice ): return
+		if not cls.isAllowSend(stock.code): return
 		try:
 		    cls.logInfo("[buy event] code:%s, name:%s, dyPe:%s, staPe:%s, pb:%s, now:%s" % ( stock.code, stock.name, dyPe, staPe, pb, now.now) )
 		    msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe, pb)
 		    notify.asyncSendMsg(msg)
+		    cls.markSend(stock.code)
 		except Exception as ex:
 			cls.logError("send msg exception:" + str(ex))
 			return
 		cls.logInfo("send once")
+
+	@classmethod
+	def isAllowSend(cls, code):
+		key = "HighProbRoseStrategy:" + code
+		v = notify.straMemCache.get(key)
+		if v == None:
+			return True
+		return False
+
+	@classmethod
+	def markSend(cls, code):
+		key = "HighProbRoseStrategy:" + code
+		notify.straMemCache.set(key, '1', 3600 * 3)
 
 	@classmethod
 	def safeAnaOneStock(cls, stock, beforeDayNum):
@@ -145,7 +160,7 @@ class HighProbRoseStrategy(BaseStrategy):
 			cls.logError("safeScan catch exception:" + str(ex))
 
 	@classmethod
-	def run(cls, beforeDayNum = 20, sleepIntval = 120, concurrentNum = 12):
+	def run(cls, beforeDayNum = 20, sleepIntval = 120, concurrentNum = 4):
 		while 1:
 			cls.safeScan(beforeDayNum, concurrentNum)
 			time.sleep(sleepIntval)
@@ -154,6 +169,12 @@ class HighProbRoseStrategy(BaseStrategy):
 def run_high_prob_role_strategy(logger):
 	HighProbRoseStrategy.logger = logger
 	HighProbRoseStrategy.run()
+
+
+class HisBugProfileStrategy(BaseStrategy):
+	@classmethod
+	def run(cls):
+		pass
 
 
 class shareOutBonusStrategy(BaseStrategy):

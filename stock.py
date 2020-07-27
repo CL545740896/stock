@@ -21,9 +21,8 @@ commonLogger = Log('./common.log')
 strategyLogger = Log("./stragegy.log")
 
 def init():
-    lib.notify.initMsgQueue()
+    lib.notify.init()
     StockList.getInstance().getAllStock()
-
 
 def run(stock, notifyUrl, conf):
     watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl, conf=conf)
@@ -78,6 +77,7 @@ def dump_queue():
     while 1:
         time.sleep(5)
         commonLogger.info('queue rest:' + str( UniMemQueue.getInstance().count() ))
+        commonLogger.info('straMemCache count:' + str( lib.notify.straMemCache.count() ) )
 
 if __name__ == '__main__':
     conf = Config("./config.json")
