@@ -145,7 +145,7 @@ class HighProbRoseStrategy(BaseStrategy):
 			cls.logError("safeScan catch exception:" + str(ex))
 
 	@classmethod
-	def run(cls, beforeDayNum = 20, sleepIntval = 20, concurrentNum = 12):
+	def run(cls, beforeDayNum = 20, sleepIntval = 120, concurrentNum = 12):
 		while 1:
 			cls.safeScan(beforeDayNum, concurrentNum)
 			time.sleep(sleepIntval)
