@@ -56,12 +56,14 @@ class HighProbRoseStrategy(BaseStrategy):
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
 		startDate, endDate = cls.getBeginEndDate(beforeDayNum)
+		print(startDate, endDate)
 		sh = StockHistory(code = stock.code, startDate = startDate, endDate = endDate)
 		pointList, err = sh.getPointList()
 		if err != None:
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
 		pointList = pointList[0:beforeDayNum-2]
+		for p in pointList: print(p.time)
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
 		now = Point.getNow(stock.code)
@@ -143,7 +145,7 @@ class HighProbRoseStrategy(BaseStrategy):
 			cls.logError("safeScan catch exception:" + str(ex))
 
 	@classmethod
-	def run(cls, beforeDayNum = 10, sleepIntval = 20, concurrentNum = 12):
+	def run(cls, beforeDayNum = 20, sleepIntval = 20, concurrentNum = 12):
 		while 1:
 			cls.safeScan(beforeDayNum, concurrentNum)
 			time.sleep(sleepIntval)
