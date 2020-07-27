@@ -70,4 +70,3 @@ def asyncMsgConsume(sleepIntval = 60):
             totalMsg = totalMsg + msg + "\n\n"
         if totalMsg == '': continue
         defaultSendDDMsg(totalMsg)
-        print('send once---------------------------------------')

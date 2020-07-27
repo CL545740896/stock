@@ -9,8 +9,10 @@ from lib.stock_history import StockHistory
 from lib.point import Point
 from lib.notify_tpl import NotifyTpl
 from lib.config import Config
+from agileutil.memcache import MemStringCache
 import lib.notify as notify
 import time
+import demjson
 
 
 class BaseStrategy:
@@ -170,14 +172,78 @@ def run_high_prob_role_strategy(logger):
 	HighProbRoseStrategy.logger = logger
 	HighProbRoseStrategy.run()
 
+def run_his_buy_profit_strategy(logger):
+	HisBuyProfitStrategy.logger = logger
+	HisBuyProfitStrategy.run()
 
-class HisBugProfileStrategy(BaseStrategy):
+
+class HisBuyProfitStrategy(BaseStrategy):
+
+	@classmethod
+	def checkOnce(cls):
+		f = open('./data/his_buy_profit.json', 'r')
+		content = f.read()
+		f.close()
+		data = demjson.decode(content)
+		for code, buyProfitList in data.items():
+			buyProfitList.sort()
+			print(code, buyProfitList)
+			point = Point.getNow(code)
+			print(point)
+			isLessThanHis = False
+			comparePrice = 0
+			for price in buyProfitList:
+				if point.now <= price:
+					isLessThanHis = True
+					comparePrice = price
+					break
+			print(isLessThanHis, point.now)
+			if not isLessThanHis: continue
+			print( 'allow send：', cls.isAllowSend(code) )
+			if not cls.isAllowSend(code): return
+			msg = NotifyTpl.genHisBuyProfitNotify('买入信号', point.name, code, point.now, comparePrice)
+			print('msg:', msg)
+			notify.defaultSendDDMsg(msg)
+			cls.markSend(code)
+
+	hisBuyMemCache = None
+
+	@classmethod
+	def init(cls):
+		if cls.hisBuyMemCache == None:
+			cls.hisBuyMemCache = MemStringCache()
+
+	@classmethod
+	def isAllowSend(cls, code):
+		cls.init()
+		key = "HisBuyProfitStrategy:" + code
+		v = cls.hisBuyMemCache.get(key)
+		if v == None: return True
+		return False
+
+	@classmethod
+	def markSend(cls, code):
+		cls.init()
+		key = "HisBuyProfitStrategy:" + code
+		cls.hisBuyMemCache.set(key, '1', 3600 * 3)
+
+	@classmethod
+	def safeCheckOnce(cls):
+		try:
+			cls.checkOnce()
+		except Exception as ex:
+			cls.logError("HisBugProfileStrategy exception:" + str(ex))
+
 	@classmethod
 	def run(cls):
-		pass
+		while 1:
+			#for test
+			time.sleep(60)
+			if not Point.isStcokTime(): continue
+			cls.safeCheckOnce()
 
 
-class shareOutBonusStrategy(BaseStrategy):
+class shareBonusStrategy(BaseStrategy):
 	'''
 	找出最近分紅的股票
 	'''

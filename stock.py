@@ -107,6 +107,8 @@ if __name__ == '__main__':
     #跑策略
     t = gevent.spawn(strategy.run_high_prob_role_strategy, strategyLogger)
     taskList.append(t)
+    t = gevent.spawn(strategy.run_his_buy_profit_strategy, strategyLogger)
+    taskList.append(t)
 
 
     gevent.joinall(taskList)

@@ -11,6 +11,7 @@ class NotifyTpl:
     commonTpl = '您关注的股票 [%s] 当前价格 [%s] 满足 [%s] 条件 %s'
     #highProbStraTpl = '%s股票[%s],代码[%s],当前价格[%s]为最近[%s]个交易日振荡的最低价,动态市盈率[%s],静态市盈率[%s],满足策略[HIGH_PROB_ROSE_STRA]'
     highProbStraTpl = '%s:股票[%s][%s],当前价格[%s],是最近[%s]个交易日振荡最低价,动态市盈率[%s],静态市盈率[%s],市净率[%s],策略[HIGH_PROB_ROSE_STRA]'
+    hisBuyProfitTpl = '%s:股票[%s][%s],当前价格[%s],小于历史买入且盈利价格[%s],策略[HIS_BUY_PROFIT_STRA]'
 
     @classmethod
     def genNotify(cls, name, now, action, args = ''):
@@ -20,4 +21,9 @@ class NotifyTpl:
     @classmethod
     def genHighProbStrategyNotify(cls, action, name, code, now, ndays, dyPe, staPe, pb):
     	string = cls.highProbStraTpl % (action, name, code, now, ndays,dyPe, staPe, pb)
+    	return string
+
+    @classmethod
+    def genHisBuyProfitNotify(cls, action, name, code, now, price):
+    	string = cls.hisBuyProfitTpl % (action, name, code, now, price)
     	return string
