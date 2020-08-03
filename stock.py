@@ -109,6 +109,7 @@ if __name__ == '__main__':
     taskList.append(t)
     t = gevent.spawn(strategy.run_his_buy_profit_strategy, strategyLogger)
     taskList.append(t)
-
+    t = gevent.spawn(strategy.run_still_rose_strategy, strategyLogger)
+    taskList.append(t)
 
     gevent.joinall(taskList)

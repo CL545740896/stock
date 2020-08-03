@@ -1,7 +1,7 @@
-from lib.strategy import HighProbRoseStrategy, HisBuyProfitStrategy
+from lib.strategy import HighProbRoseStrategy, HisBuyProfitStrategy, FindStillRoseStrategy
 from lib.stock import Stock, StockList
 
-HighProbRoseStrategy.test()
+FindStillRoseStrategy.test()
 
 '''
 stock = Stock(code = 'sh603488')

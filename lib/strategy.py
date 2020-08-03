@@ -10,6 +10,7 @@ from lib.point import Point
 from lib.notify_tpl import NotifyTpl
 from lib.config import Config
 from agileutil.memcache import MemStringCache
+import agileutil.wrap as awrap
 import lib.notify as notify
 import time
 import demjson
@@ -65,7 +66,7 @@ class HighProbRoseStrategy(BaseStrategy):
 		if err != None:
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
-		pointList = pointList[0:10]
+		pointList = pointList[-10:]
 		for p in pointList: print(p.time)
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
@@ -109,7 +110,7 @@ class HighProbRoseStrategy(BaseStrategy):
 		if not cls.isAllowSend(stock.code): return
 		try:
 		    cls.logInfo("[buy event] code:%s, name:%s, dyPe:%s, staPe:%s, pb:%s, now:%s" % ( stock.code, stock.name, dyPe, staPe, pb, now.now) )
-		    msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe, pb, str(roseRate)[0:4] )
+		    msg = NotifyTpl.genHighProbStrategyNotify('关注信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe, pb, str(roseRate)[0:4] )
 		    notify.asyncSendMsg(msg)
 		    cls.markSend(stock.code)
 		except Exception as ex:
@@ -201,6 +202,10 @@ def run_his_buy_profit_strategy(logger):
 	HisBuyProfitStrategy.logger = logger
 	HisBuyProfitStrategy.run()
 
+def run_still_rose_strategy(logger):
+	FindStillRoseStrategy.logger = logger
+	FindStillRoseStrategy.run()
+
 
 class HisBuyProfitStrategy(BaseStrategy):
 
@@ -274,3 +279,63 @@ class shareBonusStrategy(BaseStrategy):
 	'''
 	def __init__(self):
 		pass
+
+class FindStillRoseStrategy(BaseStrategy):
+	'''
+	找出连续n天都在上涨的股票
+	'''
+
+	@classmethod
+	@awrap.safe
+	def scan(cls, stock, beforeDayNum = 10):
+		#如果是ST类型的股票，不分析
+		if 'ST' in stock.name or 'st' in stock.name: return
+		startDate, endDate = cls.getBeginEndDate(35)
+		print( startDate, endDate )
+		sh = StockHistory(code = stock.code, startDate = startDate, endDate = endDate)
+		pointList, err = sh.getPointList()
+		if err != None:
+			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
+			return
+		index = 0 - beforeDayNum
+		pointList = pointList[index:]
+		length = len(pointList)
+		isStillRose = True
+		for i in range(length-1):
+			print(pointList[i].time, pointList[i+1].time, pointList[i].dayEnd, pointList[i+1].dayEnd)
+			if pointList[i].dayEnd >= pointList[i+1].dayEnd:
+				isStillRose = False
+		if isStillRose == False: return
+		now = Point.getNow(stock.code)
+		msg = NotifyTpl.genStillRoseNotify('关注信号', stock.name, stock.code, length, now.now)
+		notify.asyncSendMsg(msg)
+
+	@classmethod
+	@awrap.safe
+	def scanOnce(cls, beforeDayNum = 10, concurrentNum = 30):
+		#for test
+		if not Point.isStcokTime() and False: return
+		begin = time.time()
+		concurrentPool = pool.Pool(concurrentNum)
+		stockList = StockList.getAllStock()
+		index = 0
+		for stock in stockList:
+			concurrentPool.spawn(cls.scan, stock, beforeDayNum)
+			index = index + 1
+			cls.logInfo("name:%s,index:%s" % (stock.name, index) )
+		concurrentPool.join()
+		end = time.time()
+		cost = end - begin
+		cls.logInfo('scan once finish, stock num:' + str(len(stockList)) + ' cost:'+ str( int(cost) ) +' seconds')
+
+
+	@classmethod
+	def run(cls):
+		while 1:
+			time.sleep(60)
+			cls.scanOnce()
+
+	@classmethod
+	def test(cls):
+		stock = Stock('sz002405')
+		cls.scan(stock)
