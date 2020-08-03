@@ -44,6 +44,7 @@ class BaseStrategy:
 
 
 class HighProbRoseStrategy(BaseStrategy):
+	
 	'''
 	策略说明：
 	当一支股票当前价格到达了最近n个交易日的最低点，且在最近n个交易日中,
@@ -54,7 +55,7 @@ class HighProbRoseStrategy(BaseStrategy):
 	'''
 
 	@classmethod
-	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 20, allowStaticPe = 20, allowPb = 10, allowLowPrice = 10, allowHighPrice = 40):
+	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 20, allowStaticPe = 20, allowPb = 10, allowLowPrice = 3, allowHighPrice = 40):
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
 		startDate, endDate = cls.getBeginEndDate(beforeDayNum)
@@ -64,7 +65,7 @@ class HighProbRoseStrategy(BaseStrategy):
 		if err != None:
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
-		pointList = pointList[0:8]
+		pointList = pointList[0:14]
 		for p in pointList: print(p.time)
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
@@ -81,8 +82,6 @@ class HighProbRoseStrategy(BaseStrategy):
 			if float(now.now) >= float(point.dayMin):
 				isLatestMin = False
 				break
-		#for test
-		isLatestMin = True
 		#判断最近几天是否有振荡 (判断是否有涨有跌)
 		if isLatestMin == False: return
 		roseNum = 0
@@ -93,6 +92,9 @@ class HighProbRoseStrategy(BaseStrategy):
 			else:
 				fallNum = fallNum + 1
 		if roseNum <= 0 or fallNum <= 0: return
+		sumNum = roseNum + fallNum
+		roseRate = float(roseNum) / float(sumNum)
+		if roseRate <= 0.30: return
 		dyPe, staPe, pb, err = stock.getPePb()
 		print(dyPe, staPe, pb, err)
 		cls.logInfo("pb pe :%s,%s,%s,%s" % (dyPe, staPe, pb, err) )
@@ -107,13 +109,36 @@ class HighProbRoseStrategy(BaseStrategy):
 		if not cls.isAllowSend(stock.code): return
 		try:
 		    cls.logInfo("[buy event] code:%s, name:%s, dyPe:%s, staPe:%s, pb:%s, now:%s" % ( stock.code, stock.name, dyPe, staPe, pb, now.now) )
-		    msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe, pb)
+		    msg = NotifyTpl.genHighProbStrategyNotify('买入信号', stock.name, stock.code, now.now, len(pointList), dyPe, staPe, pb, str(roseRate)[0:4] )
 		    notify.asyncSendMsg(msg)
 		    cls.markSend(stock.code)
 		except Exception as ex:
 			cls.logError("send msg exception:" + str(ex))
 			return
 		cls.logInfo("send once")
+
+	@classmethod
+	def test(cls):
+		startDate, endDate = cls.getBeginEndDate(20)
+		print(startDate, endDate)
+		sh = StockHistory(code = 'sz002078', startDate = startDate, endDate = endDate)
+		pointList, err = sh.getPointList()
+		if err != None:
+			print(err)
+			return
+		for p in pointList:
+			print(p.dayMin, p.time)
+		now = Point.getNow('sz002078')
+		print('now:', now.now)
+		isLatestMin = True
+		for point in pointList:
+			#按照日期升序2020-07-13 ~ 2020-07-14
+			#for test
+			#print('code:', point.code, 'time:', point.time, 'dayBegin:', point.dayBegin, 'dayEnd:', point.dayEnd, 'dayMax:', point.dayMax, 'dayMin:', point.dayMin)
+			if float(now.now) >= float(point.dayMin):
+				isLatestMin = False
+				break
+		print('isLatestMin:', isLatestMin)
 
 	@classmethod
 	def isAllowSend(cls, code):
@@ -138,9 +163,9 @@ class HighProbRoseStrategy(BaseStrategy):
 	@classmethod
 	def scanOnce(cls, beforeDayNum, concurrentNum):
 		cls.logInfo('ready scan')
-		if not Point.isStcokTime(): return
+		#if not Point.isStcokTime(): return
 		#for test
-		#if not Point.isStcokTime() and False: return
+		if not Point.isStcokTime() and False: return
 		begin = time.time()
 		concurrentPool = pool.Pool(concurrentNum)
 		stockList = StockList.getAllStock()
