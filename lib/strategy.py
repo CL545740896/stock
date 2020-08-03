@@ -65,7 +65,7 @@ class HighProbRoseStrategy(BaseStrategy):
 		if err != None:
 			cls.logError("code:%s, name:%s, get history failed:%s" % (stock.code, stock.name, err) )
 			return
-		pointList = pointList[0:14]
+		pointList = pointList[0:7]
 		for p in pointList: print(p.time)
 		if len(pointList) <= 0: return
 		#判断是否到达最近几天的最低点
