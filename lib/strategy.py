@@ -94,7 +94,7 @@ class HighProbRoseStrategy(BaseStrategy):
 		if roseNum <= 0 or fallNum <= 0: return
 		sumNum = roseNum + fallNum
 		roseRate = float(roseNum) / float(sumNum)
-		if roseRate <= 0.30: return
+		#if roseRate <= 0.30: return
 		dyPe, staPe, pb, err = stock.getPePb()
 		print(dyPe, staPe, pb, err)
 		cls.logInfo("pb pe :%s,%s,%s,%s" % (dyPe, staPe, pb, err) )
