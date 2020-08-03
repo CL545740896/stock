@@ -164,9 +164,9 @@ class HighProbRoseStrategy(BaseStrategy):
 	@classmethod
 	def scanOnce(cls, beforeDayNum, concurrentNum):
 		cls.logInfo('ready scan')
-		#if not Point.isStcokTime(): return
+		if not Point.isStcokTime(): return
 		#for test
-		if not Point.isStcokTime() and False: return
+		#if not Point.isStcokTime() and False: return
 		begin = time.time()
 		concurrentPool = pool.Pool(concurrentNum)
 		stockList = StockList.getAllStock()
@@ -314,7 +314,7 @@ class FindStillRoseStrategy(BaseStrategy):
 	@awrap.safe
 	def scanOnce(cls, beforeDayNum = 10, concurrentNum = 30):
 		#for test
-		if not Point.isStcokTime() and False: return
+		if not Point.isStcokTime(): return
 		begin = time.time()
 		concurrentPool = pool.Pool(concurrentNum)
 		stockList = StockList.getAllStock()
