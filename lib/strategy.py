@@ -300,6 +300,7 @@ class FindStillRoseStrategy(BaseStrategy):
 		index = 0 - beforeDayNum
 		pointList = pointList[index:]
 		length = len(pointList)
+		if length < beforeDayNum: return
 		isStillRose = True
 		for i in range(length-1):
 			print(pointList[i].time, pointList[i+1].time, pointList[i].dayEnd, pointList[i+1].dayEnd)
@@ -339,3 +340,14 @@ class FindStillRoseStrategy(BaseStrategy):
 	def test(cls):
 		stock = Stock('sz002405')
 		cls.scan(stock)
+
+
+class ETFRiseStrategy(BaseStrategy):
+
+	'''
+	找出ETF类指数基金
+	'''
+
+	@classmethod
+	def run(cls):
+		pass
