@@ -2,6 +2,7 @@
 
 import demjson
 
+
 class ETF:
 
     allETFList = None
@@ -11,6 +12,7 @@ class ETF:
     def __init__(self, code):
         self.code = code
         self.name = None
+        self.name = self.getName()
 
     @classmethod
     def getAllETFList(cls):
@@ -18,7 +20,11 @@ class ETF:
             f = open('./data/all_etf.json', 'r')
             content = f.read()
             f.close()
-            cls.allETFList = demjson.decode(content)
+            allETFList = demjson.decode(content)
+            cls.allETFList = []
+            for etf in allETFList:
+                etfObj = ETF(etf['code'])
+                cls.allETFList.append(etfObj)
         return cls.allETFList
 
     @classmethod
@@ -27,16 +33,23 @@ class ETF:
             f = open('./data/cn_etf_list.json', 'r')
             content = f.read()
             f.close()
-            cls.cnETFList = demjson.decode(content)
+            cnETFList = demjson.decode(content)
+            cls.cnETFList = []
+            for etf in cnETFList:
+                etfObj = ETF(etf['code'])
+                cls.cnETFList.append(etfObj)
         return cls.cnETFList
 
     @classmethod
     def getCodeNameMap(cls):
         if cls.codeNameMap == None:
             cls.codeNameMap = {}
-            etfList = cls.getAllETFList()
-            if etfList == None: etfList = []
-            for etf in etfList:
+            f = open('./data/all_etf.json', 'r')
+            content = f.read()
+            f.close()
+            allETFList = demjson.decode(content)
+            if allETFList == None: allETFList = []
+            for etf in allETFList:
                 cls.codeNameMap[ etf['code'] ] = etf['name']
         return cls.codeNameMap
 
@@ -48,3 +61,6 @@ class ETF:
             else:
                 self.name = ''
         return self.name
+
+    def dump(self):
+        print('code:', self.code, 'name:', self.name)

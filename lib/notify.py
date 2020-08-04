@@ -1,5 +1,7 @@
 #coding=utf-8
 
+import gevent
+from gevent import monkey; monkey.patch_all()
 import requests
 import demjson
 import lib.util as util
@@ -62,7 +64,7 @@ def asyncSendMsg(msg):
 
 def asyncMsgConsume(sleepIntval = 60):
     while 1:
-        time.sleep(sleepIntval)
+        gevent.sleep(sleepIntval)
         totalMsg = ''
         while 1:
             msg = msgQueue.pop()

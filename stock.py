@@ -1,7 +1,6 @@
 #coding=utf-8
 import gevent
-import gevent.monkey
-gevent.monkey.patch_all()
+from gevent import monkey; monkey.patch_all()
 from lib.config import Config
 from lib.watcher import Watcher
 from lib.point import Point
@@ -31,7 +30,7 @@ def run(stock, notifyUrl, conf):
 
 def push_msg():
     while 1:
-        time.sleep(30)
+        gevent.sleep(30)
         msg = UniMemQueue.getInstance().pop()
         if msg == None:
             continue
@@ -66,7 +65,7 @@ def get_report(code):
 def gen_report():
     lastStockTag = False
     while 1:
-        time.sleep(30)
+        gevent.sleep(30)
         currentStockTag = Point.isStcokTime()
         if currentStockTag != lastStockTag and currentStockTag == False and lastStockTag == True:
             for stock in conf.reload().data['stockList']:
@@ -75,7 +74,7 @@ def gen_report():
 
 def dump_queue():
     while 1:
-        time.sleep(5)
+        gevent.sleep(5)
         commonLogger.info('queue rest:' + str( UniMemQueue.getInstance().count() ))
         commonLogger.info('straMemCache count:' + str( lib.notify.straMemCache.count() ) )
 
@@ -111,5 +110,9 @@ if __name__ == '__main__':
     taskList.append(t)
     t = gevent.spawn(strategy.run_still_rose_strategy, strategyLogger)
     taskList.append(t)
+    t = gevent.spawn(strategy.run_etf_rise_strategy, strategyLogger)
+    taskList.append(t)
 
-    gevent.joinall(taskList)
+    while 1: gevent.sleep(3600)
+
+    #gevent.joinall(taskList)

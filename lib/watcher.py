@@ -1,5 +1,7 @@
 #coding=utf-8
 
+import gevent
+from gevent import monkey; monkey.patch_all()
 from lib.point import Point
 from lib.notify_tpl import NotifyTpl
 import lib.notify as notify
@@ -8,6 +10,7 @@ import time
 from agileutil.log import Log
 from agileutil.queue import UniMemQueue
 import agileutil.date as dt
+
 
 '''
 监控一只股票
@@ -51,7 +54,7 @@ class Watcher:
     def start(self):
         self.status = Watcher.STATUS_RUN
         while 1:
-            time.sleep(1)
+            gevent.sleep(1)
             if self.status == Watcher.STATUS_STOP:
                 #print('watcher stopped')
                 return

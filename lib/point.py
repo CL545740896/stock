@@ -31,7 +31,7 @@ class Point:
 
     @classmethod
     def getNow(cls, code):
-        url = cls.sinaURL + '/list=' + code
+        url = cls.sinaURL + '/list=' + code.lower()
         r = requests.get(url, timeout=10)
         fields = r.text.replace('var hq_str_' + code + '=', '').replace("\"", '').split(',')
         p = Point()
@@ -58,6 +58,7 @@ class Point:
         '''
         判断当前是否为A股交易时间
         '''
+        return True
         curStamp = time.time()
         t = time.localtime(curStamp)
         if t.tm_wday not in [0, 1, 2, 3, 4]: return False

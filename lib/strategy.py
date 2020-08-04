@@ -2,18 +2,21 @@
 
 import gevent
 from gevent import socket,monkey,pool
-#monkey.patch_all()
+monkey.patch_all()
 from lib.point import Point
 from lib.stock import StockList, Stock
 from lib.stock_history import StockHistory
 from lib.point import Point
 from lib.notify_tpl import NotifyTpl
 from lib.config import Config
+from lib.etf import ETF
 from agileutil.memcache import MemStringCache
 import agileutil.wrap as awrap
 import lib.notify as notify
 import time
 import demjson
+import sys
+import multiprocessing
 
 
 class BaseStrategy:
@@ -56,7 +59,8 @@ class HighProbRoseStrategy(BaseStrategy):
 	'''
 
 	@classmethod
-	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 20, allowStaticPe = 20, allowPb = 10, allowLowPrice = 3, allowHighPrice = 40):
+	def analyseOneStock(cls, stock, beforeDayNum, allowDynicPe = 40, allowStaticPe = 40, allowPb = 20, allowLowPrice = 2, allowHighPrice = 40):
+		gevent.sleep(0.001)
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
 		startDate, endDate = cls.getBeginEndDate(beforeDayNum)
@@ -88,11 +92,10 @@ class HighProbRoseStrategy(BaseStrategy):
 		roseNum = 0
 		fallNum = 0
 		for point in pointList:
-			if point.dayBegin <= point.dayEnd:
+			if point.dayBegin < point.dayEnd:
 				roseNum = roseNum + 1
 			else:
 				fallNum = fallNum + 1
-		if roseNum <= 0 or fallNum <= 0: return
 		sumNum = roseNum + fallNum
 		roseRate = float(roseNum) / float(sumNum)
 		if roseRate <= 0.25: return
@@ -188,10 +191,10 @@ class HighProbRoseStrategy(BaseStrategy):
 			cls.logError("safeScan catch exception:" + str(ex))
 
 	@classmethod
-	def run(cls, beforeDayNum = 20, sleepIntval = 120, concurrentNum = 50):
+	def run(cls, beforeDayNum = 20, sleepIntval = 120, concurrentNum = multiprocessing.cpu_count()):
 		while 1:
 			cls.safeScan(beforeDayNum, concurrentNum)
-			time.sleep(sleepIntval)
+			gevent.sleep(sleepIntval)
 
 
 def run_high_prob_role_strategy(logger):
@@ -206,11 +209,16 @@ def run_still_rose_strategy(logger):
 	FindStillRoseStrategy.logger = logger
 	FindStillRoseStrategy.run()
 
+def run_etf_rise_strategy(logger): 
+	ETFRiseStrategy.logger = logger
+	ETFRiseStrategy.run()
+
 
 class HisBuyProfitStrategy(BaseStrategy):
 
 	@classmethod
-	def checkOnce(cls):
+	def checkOnce(cls): 
+		gevent.sleep(0.001)
 		f = open('./data/his_buy_profit.json', 'r')
 		content = f.read()
 		f.close()
@@ -268,7 +276,7 @@ class HisBuyProfitStrategy(BaseStrategy):
 	def run(cls):
 		while 1:
 			#for test
-			time.sleep(60)
+			gevent.sleep(60)
 			if not Point.isStcokTime(): continue
 			cls.safeCheckOnce()
 
@@ -287,7 +295,8 @@ class FindStillRoseStrategy(BaseStrategy):
 
 	@classmethod
 	@awrap.safe
-	def scan(cls, stock, beforeDayNum = 10):
+	def scan(cls, stock, beforeDayNum = 10): 
+		gevent.sleep(0.001)
 		#如果是ST类型的股票，不分析
 		if 'ST' in stock.name or 'st' in stock.name: return
 		startDate, endDate = cls.getBeginEndDate(35)
@@ -299,12 +308,14 @@ class FindStillRoseStrategy(BaseStrategy):
 			return
 		index = 0 - beforeDayNum
 		pointList = pointList[index:]
-		length = len(pointList)
-		if length < beforeDayNum: return
+		for point in pointList: 
+			if point.dayBegin >= point.dayEnd: 
+				return
+		#判断价格是否连续上涨
 		isStillRose = True
-		for i in range(length-1):
-			print(pointList[i].time, pointList[i+1].time, pointList[i].dayEnd, pointList[i+1].dayEnd)
-			if pointList[i].dayEnd >= pointList[i+1].dayEnd:
+		length = len(pointList)
+		for i in range(length - 1): 
+			if pointList[i].dayEnd >= pointList[i+1].dayEnd: 
 				isStillRose = False
 		if isStillRose == False: return
 		now = Point.getNow(stock.code)
@@ -313,7 +324,7 @@ class FindStillRoseStrategy(BaseStrategy):
 
 	@classmethod
 	@awrap.safe
-	def scanOnce(cls, beforeDayNum = 10, concurrentNum = 30):
+	def scanOnce(cls, beforeDayNum = 10, concurrentNum = multiprocessing.cpu_count()):
 		#for test
 		if not Point.isStcokTime(): return
 		begin = time.time()
@@ -333,7 +344,7 @@ class FindStillRoseStrategy(BaseStrategy):
 	@classmethod
 	def run(cls):
 		while 1:
-			time.sleep(60)
+			gevent.sleep(60)
 			cls.scanOnce()
 
 	@classmethod
@@ -345,9 +356,48 @@ class FindStillRoseStrategy(BaseStrategy):
 class ETFRiseStrategy(BaseStrategy):
 
 	'''
-	找出ETF类指数基金
+	找出ETF类指数基金, 最近连续下跌的, 对于定投来讲，下跌时候是买入的机会
 	'''
+	@classmethod
+	def scanOnce(cls, concurrentNum = multiprocessing.cpu_count()):
+		concurrentPool = pool.Pool(concurrentNum)
+		cnEtfList = ETF.getCnETFList()
+		for etf in cnEtfList: 
+			concurrentPool.spawn(cls.scanOne, etf)
+		concurrentPool.join()
+		print('scan once')
 
 	@classmethod
-	def run(cls):
-		pass
+	@awrap.safe
+	def scanOne(cls, etf, beforeDayNum = 2): 
+		gevent.sleep(0.001)
+		startDate, endDate = cls.getBeginEndDate(20)
+		sh = StockHistory(etf.code.lower(), startDate, endDate)
+		pointList, err = sh.getPointList()
+		if err != None: 
+			cls.logError("get etf history failed:" + str(err)) 
+			return
+		index = 0 - beforeDayNum
+		pointList = pointList[index:]
+		length = len(pointList)
+		#判断价格是否连续下跌
+		isStillRise = True
+		for i in range(length-1): 
+			if pointList[i].dayEnd <= pointList[i+1].dayEnd: 
+				isStillRise = False
+		if isStillRise == False: return
+		#判断是否连续下跌
+		for point in pointList: 
+			if point.dayBegin <= point.dayEnd: 
+				return
+		now = Point.getNow(etf.code)
+		#大于30块的不要
+		if now.now >= 30: return
+		msg = NotifyTpl.genETFRiseTpl('关注信息', etf.name, etf.code, length, now.now)
+		notify.asyncSendMsg(msg)
+
+	@classmethod
+	def run(cls): 
+		while 1: 
+			gevent.sleep(60)
+			cls.scanOnce()

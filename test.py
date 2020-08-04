@@ -1,14 +1,9 @@
-from lib.strategy import HighProbRoseStrategy, HisBuyProfitStrategy, FindStillRoseStrategy
+from lib.strategy import HighProbRoseStrategy, HisBuyProfitStrategy, FindStillRoseStrategy, ETFRiseStrategy
 from lib.stock import Stock, StockList
 from lib.etf import ETF
 import agileutil.wrap as awrap
 
-@awrap.stdout_log
-def test():
-	cnETFList = ETF.getCnETFList()
-	for etf in cnETFList: print(etf)
-
-test()
+ETFRiseStrategy.run()
 
 #FindStillRoseStrategy.test()
 

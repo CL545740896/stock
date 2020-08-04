@@ -1,5 +1,7 @@
 #coding=utf-8
 
+import gevent
+from gevent import monkey; monkey.patch_all()
 from point import Point
 import time
 
@@ -11,7 +13,7 @@ class KLine:
 
     def show(self):
         while 1:
-            time.sleep(1)
+            (1)
             p = Point.getNow(self.code)
             self.pointList.append(p)
 
@@ -21,7 +23,7 @@ class KLine:
             i = i + 1
             p = Point.getNow(self.code)
             self.onOnePointEvent(p)
-            time.sleep(1)
+            gevent.sleep(1)
 
     def onOnePointEvent(self, point):
         pass
