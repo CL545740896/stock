@@ -5,3 +5,5 @@ __pycache__
 *.log
 nohup.out
 *.out
+*.log.*
+*.deb

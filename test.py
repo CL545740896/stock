@@ -1,7 +1,16 @@
 from lib.strategy import HighProbRoseStrategy, HisBuyProfitStrategy, FindStillRoseStrategy
 from lib.stock import Stock, StockList
+from lib.etf import ETF
+import agileutil.wrap as awrap
 
-FindStillRoseStrategy.test()
+@awrap.stdout_log
+def test():
+	cnETFList = ETF.getCnETFList()
+	for etf in cnETFList: print(etf)
+
+test()
+
+#FindStillRoseStrategy.test()
 
 '''
 stock = Stock(code = 'sh603488')
