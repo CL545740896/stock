@@ -2,8 +2,8 @@
 
 import demjson
 
-class Config:
 
+class Config:
     def __init__(self, confPath):
         self.confPath = confPath
         self.data = {}

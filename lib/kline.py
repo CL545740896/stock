@@ -1,12 +1,13 @@
 #coding=utf-8
 
 import gevent
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey
+monkey.patch_all()
 from point import Point
 import time
 
-class KLine:
 
+class KLine:
     def __init__(self, code):
         self.code = code
         self.pointList = []
@@ -17,7 +18,7 @@ class KLine:
             p = Point.getNow(self.code)
             self.pointList.append(p)
 
-    def collect(self, times = 3110400000):
+    def collect(self, times=3110400000):
         i = 0
         while i < times:
             i = i + 1
@@ -27,6 +28,7 @@ class KLine:
 
     def onOnePointEvent(self, point):
         pass
+
 
 '''
 kline = KLine('sz159919')

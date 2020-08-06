@@ -50,14 +50,14 @@ class ETF:
             allETFList = demjson.decode(content)
             if allETFList == None: allETFList = []
             for etf in allETFList:
-                cls.codeNameMap[ etf['code'] ] = etf['name']
+                cls.codeNameMap[etf['code']] = etf['name']
         return cls.codeNameMap
 
     def getName(self):
         if self.name == None:
             codeNameMap = self.getCodeNameMap()
             if self.code in codeNameMap:
-                self.name = codeNameMap [self.code]
+                self.name = codeNameMap[self.code]
             else:
                 self.name = ''
         return self.name

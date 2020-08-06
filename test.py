@@ -6,7 +6,6 @@ import agileutil.wrap as awrap
 ETFRiseStrategy.run()
 
 #FindStillRoseStrategy.test()
-
 '''
 stock = Stock(code = 'sh603488')
 if stock != None:
@@ -19,9 +18,6 @@ stock = Stock(code = 'sh600967')
 raw, err = stock.fetchRawInfo()
 print(raw, err)
 '''
-
-
-
 '''
 from lib.stock import StockList
 from lib.stock_history import StockHistory
@@ -52,7 +48,6 @@ f = open('./data/stock_list.json', 'w')
 f.write(json_str)
 f.close()
 '''
-
 '''
 f = open('./data/stock_list.json', 'r')
 content = f.read()

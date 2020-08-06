@@ -3,6 +3,7 @@
 import requests
 import time
 
+
 class Point:
 
     sinaURL = 'http://hq.sinajs.cn'
@@ -33,25 +34,29 @@ class Point:
     def getNow(cls, code):
         url = cls.sinaURL + '/list=' + code.lower()
         r = requests.get(url, timeout=10)
-        fields = r.text.replace('var hq_str_' + code + '=', '').replace("\"", '').split(',')
+        fields = r.text.replace('var hq_str_' + code + '=',
+                                '').replace("\"", '').split(',')
         p = Point()
-        p.code, p.name, p.dayBegin, p.lastdayEnd, p.now, p.dayMax, p.dayMin, p.time = code, fields[0], float(fields[1]), float(fields[2]), float(fields[3]), float(fields[4]), float(fields[5]), ' '.join([ fields[-3], fields[-2] ])
+        p.code, p.name, p.dayBegin, p.lastdayEnd, p.now, p.dayMax, p.dayMin, p.time = code, fields[
+            0], float(fields[1]), float(fields[2]), float(fields[3]), float(
+                fields[4]), float(fields[5]), ' '.join(
+                    [fields[-3], fields[-2]])
         return p
 
     def dump(self):
         m = {
-            'code' : self.code,
-            'name' : self.name,
-            'dayBegin' : self.dayBegin,
-            'dayEnd' : self.dayEnd,
-            'lastdayEnd' : self.lastdayEnd,
-            'now' : self.now,
-            'dayMax' : self.dayMax,
-            'dayMin' : self.dayMin,
-            'time' : self.time,
+            'code': self.code,
+            'name': self.name,
+            'dayBegin': self.dayBegin,
+            'dayEnd': self.dayEnd,
+            'lastdayEnd': self.lastdayEnd,
+            'now': self.now,
+            'dayMax': self.dayMax,
+            'dayMin': self.dayMin,
+            'time': self.time,
         }
-        for k, v in m.items(): 
-            print(k + ':' + str(v) + "(%s)" % type(v)  )
+        for k, v in m.items():
+            print(k + ':' + str(v) + "(%s)" % type(v))
 
     @classmethod
     def isStcokTime(cls):
@@ -62,10 +67,15 @@ class Point:
         curStamp = time.time()
         t = time.localtime(curStamp)
         if t.tm_wday not in [0, 1, 2, 3, 4]: return False
-        beginTime = int(time.mktime(time.strptime("%s-%s-%s 00:00:00" % (t.tm_year, t.tm_mon, t.tm_mday), "%Y-%m-%d %H:%M:%S")))
+        beginTime = int(
+            time.mktime(
+                time.strptime(
+                    "%s-%s-%s 00:00:00" % (t.tm_year, t.tm_mon, t.tm_mday),
+                    "%Y-%m-%d %H:%M:%S")))
         time_9_30 = beginTime + 9 * 3600 + 1800
         time_11_30 = beginTime + 11 * 3600 + 1800
         time_13_00 = beginTime + 13 * 3600
         time_15_00 = beginTime + 15 * 3600
-        if curStamp >= time_9_30 and curStamp <= time_11_30 or curStamp >= time_13_00 and curStamp <= time_15_00: return True
+        if curStamp >= time_9_30 and curStamp <= time_11_30 or curStamp >= time_13_00 and curStamp <= time_15_00:
+            return True
         return False

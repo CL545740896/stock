@@ -1,5 +1,4 @@
 #coding=utf-8
-
 '''
 获取股票的历史数据
 '''
@@ -10,8 +9,8 @@ import demjson
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-class StockHistory:
 
+class StockHistory:
     def __init__(self, code, startDate, endDate):
         self.code = code
         self.startDate = startDate
@@ -25,11 +24,10 @@ class StockHistory:
         return code
 
     def makeUrl(self):
-        url =  self.baseurl + '/hisHq?code=%s&start=%s&end=%s&stat=1&order=A&period=d&callback=historySearchHandler&rt=json' % (
-            self.transCode(self.code), self.startDate, self.endDate
-        )
+        url = self.baseurl + '/hisHq?code=%s&start=%s&end=%s&stat=1&order=A&period=d&callback=historySearchHandler&rt=json' % (
+            self.transCode(self.code), self.startDate, self.endDate)
         return url
-    
+
     def fetchRaw(self):
         '''
         成功返回响应内容和None, 否则返回响应内容和错误信息
@@ -38,7 +36,7 @@ class StockHistory:
         resp = ''
         err = None
         try:
-            r = requests.get(url, timeout = self.timeout, verify = False)
+            r = requests.get(url, timeout=self.timeout, verify=False)
             code, resp = r.status_code, r.text
             if code == 200:
                 return resp, None

@@ -1,5 +1,4 @@
 #coding=utf-8
-
 '''
 k线持久化到sqlite
 '''
@@ -21,9 +20,9 @@ CREATE_TABLE_SQL = '''CREATE TABLE `point` (
 )
 '''
 
-class KLineSqlite(KLine):
 
-    def __init__(self, code, dbname = 'kline.db'):
+class KLineSqlite(KLine):
+    def __init__(self, code, dbname='kline.db'):
         super().__init__(code)
         self.dbname = dbname
         self.conn = None
@@ -56,13 +55,14 @@ class KLineSqlite(KLine):
         c = conn.cursor()
         sql = "INSERT INTO point(name, code, dayBegin, lastdayEnd, now, dayMax, dayMin, time)  \
                   VALUES('%s', '%s', %f, %f, %f, %f, %f, '%s')" % (
-                      point.name, point.code, point.dayBegin, point.lastdayEnd, point.now, point.dayMax, point.dayMin, str(point.time)
-                  ) 
+            point.name, point.code, point.dayBegin, point.lastdayEnd,
+            point.now, point.dayMax, point.dayMin, str(point.time))
         c.execute(sql)
         conn.commit()
 
     def loadByTimeRange(self, startTime, endTime):
-        sql = "select * from point where code='%s' and time >= '%s' and time <= '%s'" % (self.code, startTime, endTime)
+        sql = "select * from point where code='%s' and time >= '%s' and time <= '%s'" % (
+            self.code, startTime, endTime)
         conn = self.getConnection()
         c = conn.cursor()
         cursor = c.execute(sql)
@@ -83,7 +83,8 @@ class KLineSqlite(KLine):
 
 
 klineSqlite = KLineSqlite('sz159919')
-pointList = klineSqlite.loadByTimeRange('2020-06-12 09:30:00', '2020-06-12 14:38:00')
+pointList = klineSqlite.loadByTimeRange('2020-06-12 09:30:00',
+                                        '2020-06-12 14:38:00')
 '''
 from agileutil.table_writer import TableWriter
 header = ['name', 'time', 'price']
@@ -91,7 +92,6 @@ rows = [ [p.name, p.time, p.now] for p in pointList ]
 tbWriter = TableWriter(header, rows)
 tbWriter.dump()
 '''
-
 '''
 import numpy as np
 from matplotlib import pyplot as plt

@@ -1,4 +1,5 @@
 #!/bin/sh
+find . -name '*.py' | xargs yapf -i
 rm -f ./nohup.out
 find . -name '__pycache__' | xargs rm -rf
 find . -name '*.pyc' | xargs rm -f

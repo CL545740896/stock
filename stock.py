@@ -1,6 +1,7 @@
 #coding=utf-8
 import gevent
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey
+monkey.patch_all()
 from lib.config import Config
 from lib.watcher import Watcher
 from lib.point import Point
@@ -19,14 +20,21 @@ os.environ['TZ'] = 'Asia/Shanghai'
 commonLogger = Log('./common.log')
 strategyLogger = Log("./stragegy.log")
 
+
 def init():
     lib.notify.init()
     StockList.getInstance().getAllStock()
 
+
 def run(stock, notifyUrl, conf):
-    watcher = Watcher(stock['code'], buyPriceList=stock['buyPriceList'], salePriceList=stock['salePriceList'], notifyUrl=notifyUrl, conf=conf)
+    watcher = Watcher(stock['code'],
+                      buyPriceList=stock['buyPriceList'],
+                      salePriceList=stock['salePriceList'],
+                      notifyUrl=notifyUrl,
+                      conf=conf)
     watcher.setCommonLogger(commonLogger)
     watcher.start()
+
 
 def push_msg():
     while 1:
@@ -35,6 +43,7 @@ def push_msg():
         if msg == None:
             continue
         lib.notify.safeSendDDMsg(conf.reload().data['notifyUrl'], msg)
+
 
 @awrap.safe
 def get_report(code):
@@ -48,7 +57,7 @@ def get_report(code):
                 code = fields[6].split(':')[1].replace(',', '')
                 name = fields[7].split(':')[1].replace(',', '')
                 now = fields[8].split(':')[1].replace(',', '')
-                time = ':'.join( fields[9].split(':')[1:] )
+                time = ':'.join(fields[9].split(':')[1:])
                 if now == lastPoint.now:
                     continue
                 point = Point()
@@ -72,11 +81,15 @@ def gen_report():
                 get_report(stock['code'])
         lastStockTag = currentStockTag
 
+
 def dump_queue():
     while 1:
         gevent.sleep(5)
-        commonLogger.info('queue rest:' + str( UniMemQueue.getInstance().count() ))
-        commonLogger.info('straMemCache count:' + str( lib.notify.straMemCache.count() ) )
+        commonLogger.info('queue rest:' +
+                          str(UniMemQueue.getInstance().count()))
+        commonLogger.info('straMemCache count:' +
+                          str(lib.notify.straMemCache.count()))
+
 
 if __name__ == '__main__':
     conf = Config("./config.json")
@@ -113,6 +126,7 @@ if __name__ == '__main__':
     t = gevent.spawn(strategy.run_etf_rise_strategy, strategyLogger)
     taskList.append(t)
 
-    while 1: gevent.sleep(3600)
+    while 1:
+        gevent.sleep(3600)
 
     #gevent.joinall(taskList)

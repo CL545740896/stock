@@ -1,7 +1,7 @@
 #coding=utf-8
 
-class NotifyTpl:
 
+class NotifyTpl:
     def __init__(self):
         pass
 
@@ -16,19 +16,21 @@ class NotifyTpl:
     etfRiseTpl = '%s:指数基金[%s][%s],连续[%s]个交易日下跌，当前价格:[%s],定投可考虑买入.策略[ETF_RISE_STRA]'
 
     @classmethod
-    def genNotify(cls, name, now, action, args = ''):
+    def genNotify(cls, name, now, action, args=''):
         string = cls.commonTpl % (name, now, action, args)
         return string
 
     @classmethod
-    def genHighProbStrategyNotify(cls, action, name, code, now, ndays, dyPe, staPe, pb, roseRate):
-    	string = cls.highProbStraTpl % (action, name, code, now, ndays,dyPe, staPe, pb, roseRate)
-    	return string
+    def genHighProbStrategyNotify(cls, action, name, code, now, ndays, dyPe,
+                                  staPe, pb, roseRate):
+        string = cls.highProbStraTpl % (action, name, code, now, ndays, dyPe,
+                                        staPe, pb, roseRate)
+        return string
 
     @classmethod
     def genHisBuyProfitNotify(cls, action, name, code, now, price):
-    	string = cls.hisBuyProfitTpl % (action, name, code, now, price)
-    	return string
+        string = cls.hisBuyProfitTpl % (action, name, code, now, price)
+        return string
 
     @classmethod
     def genStillRoseNotify(cls, action, name, code, ndays, now):
