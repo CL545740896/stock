@@ -11,6 +11,7 @@ import sys
 from agileutil.queue import UniMemQueue
 from lib.config import Config
 from agileutil.memcache import MemStringCache
+from lib.point import Point
 
 msgQueue = None
 straMemCache = None
@@ -35,6 +36,7 @@ def initMsgQueue():
 def sendDDMsg(ddrotUrl='', msg='', timeout=10):
     v = straMemCache.get(msg)
     if v != None: return
+    if not Point.isStcokTime(): return
     util.disable_requests_warn()
     headers = {'Content-Type': 'application/json'}
     params = {
@@ -61,6 +63,7 @@ def defaultSendDDMsg(msg):
 
 
 def safeSendDDMsg(ddrotUrl='', msg='', timeout=10):
+    if not Point.isStcokTime(): return
     code = output = None
     try:
         code, output = sendDDMsg(ddrotUrl, msg, timeout)
@@ -72,6 +75,7 @@ def safeSendDDMsg(ddrotUrl='', msg='', timeout=10):
 
 def asyncSendMsg(msg):
     if msg == '': return
+    if not Point.isStcokTime(): return
     msgQueue.push(msg)
 
 
