@@ -18,9 +18,17 @@ class GetNowController(BaseController):
             return str(ex)
 
 
+class GetStockListController(BaseController):
+    def handle(self):
+        f = open('./data/stock_list.json', 'r')
+        content = f.read()
+        f.close()
+        return content
+
 def main():
     app = JapApp(worker_num=1, port=9876, log='./access.log')
     app.route('/get_now', GetNowController)
+    app.route('/get_stock_list', GetStockListController)
     app.run()
 
 
