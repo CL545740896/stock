@@ -18,7 +18,15 @@ class GetNowController(BaseController):
             return str(ex)
 
 
-if __name__ == '__main__':
+def main():
     app = JapApp(worker_num=1, port=9876, log='./access.log')
     app.route('/get_now', GetNowController)
     app.run()
+
+
+if __name__ == '__main__':
+    while 1:
+        try:
+            main()
+        except Exception as ex:
+            print(ex)
