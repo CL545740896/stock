@@ -155,3 +155,12 @@ class StockList:
     @classmethod
     def getCarStockList(cls):
         return cls.filterByWord('车')
+
+    @classmethod
+    def getNameByCode(cls, code):
+        code = code.upper()
+        stockList = StockList.getInstance().getAllStock()
+        for stock in stockList:
+            if stock.code.upper() == code:
+                return stock.name
+        return ''

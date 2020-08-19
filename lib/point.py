@@ -3,6 +3,7 @@
 import requests
 import time
 import ujson
+from lib.stock import StockList
 
 
 class Point:
