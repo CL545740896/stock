@@ -9,4 +9,4 @@ echo "app exit"
 nohup python3 stock.py > ./nohup.out 2>&1 &
 echo "app start"
 nohup python3 stock_api.py > ./nohup.out 2>&1 &
-ps -ef | grep 'stock\.py'
+ps -ef | grep 'stock'
