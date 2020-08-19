@@ -2,6 +2,7 @@
 
 import requests
 import time
+import ujson
 
 
 class Point:
@@ -57,6 +58,20 @@ class Point:
         }
         for k, v in m.items():
             print(k + ':' + str(v) + "(%s)" % type(v))
+
+    def toString(self):
+        m = {
+            'code': self.code,
+            'name': self.name,
+            'dayBegin': self.dayBegin,
+            'dayEnd': self.dayEnd,
+            'lastdayEnd': self.lastdayEnd,
+            'now': self.now,
+            'dayMax': self.dayMax,
+            'dayMin': self.dayMin,
+            'time': self.time,
+        }
+        return ujson.dumps(m)
 
     @classmethod
     def isStcokTime(cls):
