@@ -25,10 +25,16 @@ class GetStockListController(BaseController):
         f.close()
         return content
 
+class MyController(BaseController):
+    def handle(self):
+        remote = self.remoteAddr()
+        return 'Your IP:' + remote
+
 def main():
     app = JapApp(worker_num=1, port=9876, log='./access.log')
     app.route('/get_now', GetNowController)
     app.route('/get_stock_list', GetStockListController)
+    app.route('/my', MyController)
     app.run()
 
 
