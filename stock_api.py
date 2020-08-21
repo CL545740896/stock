@@ -21,9 +21,10 @@ class GetNowController(BaseController):
 class GetStockListController(BaseController):
     async def handle(self):
         content = ''
-        async with async_open('./data/stock_list.json', 'r') as f:
-            content = await f.read()
+        with open('./data/stock_list.json', 'r') as f:
+            content = f.read()
         return content
+
 
 class MyController(BaseController):
     async def handle(self):
