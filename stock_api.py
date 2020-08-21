@@ -1,8 +1,8 @@
-from agileutil.japronto import JapApp, JapController
+from agileutil.sanic import SanicApp, SanicController
 from lib.point import Point
 
 
-class BaseController(JapController):
+class BaseController(SanicController):
     ...
 
 
@@ -25,13 +25,15 @@ class GetStockListController(BaseController):
         f.close()
         return content
 
+
 class MyController(BaseController):
     def handle(self):
         remote = self.remoteAddr()
         return 'Your IP:' + remote
 
+
 def main():
-    app = JapApp(worker_num=1, port=9876, log='./access.log')
+    app = SanicApp(worker_num=1, port=9876, log='./access.log')
     app.route('/get_now', GetNowController)
     app.route('/get_stock_list', GetStockListController)
     app.route('/my', MyController)
