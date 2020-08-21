@@ -7,7 +7,7 @@ class BaseController(SanicController):
 
 
 class GetNowController(BaseController):
-    def handle(self):
+    async def handle(self):
         try:
             code = self.param('code')
             remote = self.remoteAddr()
@@ -19,15 +19,14 @@ class GetNowController(BaseController):
 
 
 class GetStockListController(BaseController):
-    def handle(self):
-        f = open('./data/stock_list.json', 'r')
-        content = f.read()
-        f.close()
+    async def handle(self):
+        content = ''
+        async with async_open('./data/stock_list.json', 'r') as f:
+            content = await f.read()
         return content
 
-
 class MyController(BaseController):
-    def handle(self):
+    async def handle(self):
         remote = self.remoteAddr()
         return 'Your IP:' + remote
 
