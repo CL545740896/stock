@@ -1,7 +1,6 @@
 #coding=utf-8
 
-import demjson
-
+import ujson
 
 class Config:
     def __init__(self, confPath):
@@ -14,7 +13,7 @@ class Config:
         content = f.read()
         f.close()
         try:
-            data = demjson.decode(content)
+            data = ujson.decode(content)
             self.data = data
         except:
             pass
@@ -25,7 +24,7 @@ class Config:
         content = f.read()
         f.close()
         try:
-            data = demjson.decode(content)
+            data = ujson.decode(content)
         except:
             return False
         return True

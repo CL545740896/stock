@@ -1,23 +1,25 @@
 #coding=utf-8
-import gevent
-from gevent import monkey
-monkey.patch_all()
+
+#import gevent
+#from gevent import monkey
+#monkey.patch_all()
 from lib.config import Config
-from lib.watcher import Watcher
-from lib.point import Point
-import lib.notify
+#from lib.watcher import Watcher
+#from lib.point import Point
+#import lib.notify
 import sys
 import os
-from agileutil.queue import UniMemQueue
+#from agileutil.queue import UniMemQueue
 from agileutil.log import Log
-from lib.stock import StockList
+#from lib.stock import StockList
 import lib.strategy as strategy
-import agileutil.wrap as awrap
+#import agileutil.wrap as awrap
+#from lib.spawn import spawn_process
 os.environ['TZ'] = 'Asia/Shanghai'
 commonLogger = Log('./common.log')
 strategyLogger = Log("./stragegy.log")
 
-
+'''
 def init():
     lib.notify.init()
     StockList.getInstance().getAllStock()
@@ -86,7 +88,7 @@ def dump_queue():
                           str(UniMemQueue.getInstance().count()))
         commonLogger.info('straMemCache count:' +
                           str(lib.notify.straMemCache.count()))
-
+'''
 
 if __name__ == '__main__':
     conf = Config("./config.json")
@@ -94,6 +96,11 @@ if __name__ == '__main__':
         print('conf has syntax error')
         sys.exit()
 
+    print(conf.isOK())
+
+    strategy.run_high_prob_role_strategy()
+
+'''
     init()
 
     taskList = []
@@ -127,3 +134,4 @@ if __name__ == '__main__':
         gevent.sleep(3600)
 
     #gevent.joinall(taskList)
+'''

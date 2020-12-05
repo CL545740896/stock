@@ -5,7 +5,7 @@
 
 from lib.point import Point
 import requests
-import demjson
+import ujson
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -56,7 +56,7 @@ class StockHistory:
         if err != None:
             return pointList, err
         try:
-            data = demjson.decode(raw)
+            data = ujson.loads(raw)
             data = data[0]['hq']
             for dayData in data:
                 p = Point()

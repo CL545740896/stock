@@ -17,6 +17,7 @@ import time
 import demjson
 import sys
 import multiprocessing
+from agileutil.log import Log
 
 
 class BaseStrategy:
@@ -215,10 +216,12 @@ class HighProbRoseStrategy(BaseStrategy):
             concurrentNum=multiprocessing.cpu_count()):
         while 1:
             cls.safeScan(beforeDayNum, concurrentNum)
-            gevent.sleep(sleepIntval)
+            time.sleep(sleepIntval)
 
 
-def run_high_prob_role_strategy(logger):
+def run_high_prob_role_strategy(logger = None):
+    if logger == None:
+        logger = Log('./logs/' + sys._getframe().f_code.co_name + '.log')
     HighProbRoseStrategy.logger = logger
     HighProbRoseStrategy.run()
 

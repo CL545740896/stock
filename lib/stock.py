@@ -1,6 +1,6 @@
 #coding=utf-8
 
-import demjson
+import ujson
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -38,7 +38,7 @@ class Stock:
             return [], err
         data = []
         try:
-            data = demjson.decode(raw)
+            data = ujson.loads(raw)
         except Exception as ex:
             return [], str(ex)
         return data, None
@@ -82,7 +82,7 @@ class Stock:
         if err != None:
             return dyPe, staticPe, err
         try:
-            data = demjson.decode(raw)
+            data = ujson.loads(raw)
             dyPe = data['data']['quote']['pe_forecast']
             staticPe = data['data']['quote']['pe_lyr']
         except Exception as ex:
@@ -93,12 +93,12 @@ class Stock:
         '''
 		返回动态市盈率和静态市盈率
 		'''
-        dyPe, staticPe, pb = -1, -1, -1
+        dyPe, staticPe, pb = 0, 0, 0
         raw, err = self.fetchPe()
         if err != None:
             return dyPe, staticPe, pb, err
         try:
-            data = demjson.decode(raw)
+            data = ujson.loads(raw)
             dyPe = data['data']['quote']['pe_forecast']
             staticPe = data['data']['quote']['pe_lyr']
             pb = data['data']['quote']['pb']
@@ -127,7 +127,7 @@ class StockList:
             f = open('./data/stock_list.json', 'r')
             content = f.read()
             f.close()
-            tmpStockList = demjson.decode(content)
+            tmpStockList = ujson.loads(content)
             stockList = []
             for stockItem in tmpStockList:
                 stock = Stock(code=stockItem['symbol'].lower(),

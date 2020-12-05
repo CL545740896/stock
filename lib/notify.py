@@ -1,10 +1,7 @@
 #coding=utf-8
 
-import gevent
-from gevent import monkey
-monkey.patch_all()
 import requests
-import demjson
+import ujson
 import lib.util as util
 import time
 import sys
@@ -16,6 +13,12 @@ from lib.point import Point
 msgQueue = None
 straMemCache = None
 
+def get_msg_queue():
+    global msgQueue
+    if msgQueue == None:
+        msgQueue = UniMemQueue()
+    return msgQueue
+
 
 def init():
     global straMemCache
@@ -26,17 +29,12 @@ def init():
 
 def initMsgQueue():
     global msgQueue
-    if msgQueue != None: return
+    if msgQueue != None:
+        return
     msgQueue = UniMemQueue()
-    if msgQueue == None:
-        print('init msg queue failed')
-        sys.exit(1)
 
 
 def sendDDMsg(ddrotUrl='', msg='', timeout=10):
-    v = straMemCache.get(msg)
-    if v != None: return
-    if not Point.isStcokTime(): return
     util.disable_requests_warn()
     headers = {'Content-Type': 'application/json'}
     params = {
@@ -45,7 +43,7 @@ def sendDDMsg(ddrotUrl='', msg='', timeout=10):
             'content': msg
         },
     }
-    data = demjson.encode(params)
+    data = ujson.dumps(params)
     r = requests.post(url=ddrotUrl,
                       headers=headers,
                       data=data,
@@ -74,9 +72,11 @@ def safeSendDDMsg(ddrotUrl='', msg='', timeout=10):
 
 
 def asyncSendMsg(msg):
-    if msg == '': return
-    if not Point.isStcokTime(): return
-    msgQueue.push(msg)
+    if msg == '':
+        return
+    if not Point.isStcokTime():
+        return
+    get_msg_queue().push(msg)
 
 
 def asyncMsgConsume(sleepIntval=60):
