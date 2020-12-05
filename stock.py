@@ -7,12 +7,9 @@ from lib.watcher import Watcher
 from lib.point import Point
 import lib.notify
 import sys
-import multiprocessing
-import time
 import os
 from agileutil.queue import UniMemQueue
 from agileutil.log import Log
-from lib.stock_history import StockHistory
 from lib.stock import StockList
 import lib.strategy as strategy
 import agileutil.wrap as awrap

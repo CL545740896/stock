@@ -7,3 +7,7 @@ nohup.out
 *.out
 *.log.*
 *.deb
+venv
+std.log
+nohup.out
+.idea
