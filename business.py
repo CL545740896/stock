@@ -5,4 +5,4 @@ import init
 
 def business():
     HighProbRoseStrategy.logger = init.get_logger('app')
-    HighProbRoseStrategy.run(beforeDayNum = 2)
+    HighProbRoseStrategy.run(beforeDayNum = 15)
