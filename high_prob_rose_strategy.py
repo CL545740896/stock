@@ -6,6 +6,7 @@ from lib.point import Point
 from lib.notify_tpl import NotifyTpl
 from lib.notify import defaultSendDDMsg
 from lib.stock import StockList, Stock
+import traceback
 
 import time
 
@@ -124,7 +125,7 @@ class HighProbRoseStrategy(BaseStrategy):
         try:
             cls.scanOnce(beforeDayNum, concurrentNum)
         except Exception as ex:
-            cls.logError("safeScan catch exception:" + str(ex))
+            cls.logError("safeScan catch exception:" + str(ex) + traceback.format_exc())
 
     @classmethod
     def run(cls, beforeDayNum=20, sleepIntval=120, concurrentNum=4):
