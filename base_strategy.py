@@ -1,6 +1,7 @@
 #coding=utf-8
 
 import time
+import traceback
 
 class BaseStrategy:
 
@@ -12,7 +13,7 @@ class BaseStrategy:
     @classmethod
     def logError(cls, string):
         if cls.logger != None:
-            cls.logger.error("[strategy] " + string)
+            cls.logger.error("[strategy] " + string + ' ' + traceback.format_exc())
 
     @classmethod
     def logInfo(cls, string):
