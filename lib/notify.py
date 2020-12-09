@@ -50,7 +50,7 @@ def sendDDMsg(ddrotUrl='', msg='', timeout=10):
                       timeout=timeout,
                       verify=False)
     print('send msg:', msg, ddrotUrl, r.status_code, r.text)
-    straMemCache.set(msg, '1', 3600 * 3)
+    #straMemCache.set(msg, '1', 3600 * 3)
     return r.status_code, r.text
 
 
